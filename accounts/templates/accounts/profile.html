@@ -8,4 +8,11 @@
     <p class="handle">@{{ member.username }} · joined {{ member.date_joined|date:"F Y" }}</p>
     {% if member.bio %}<p class="bio">{{ member.bio|linebreaksbr }}</p>{% endif %}
   </section>
+
+  <h2 class="section-title">Posts</h2>
+  {% for post in member.posts %}
+    {% include "posts/_post.html" %}
+  {% empty %}
+    <p class="empty">{{ member.name }} hasn't posted anything yet.</p>
+  {% endfor %}
 {% endblock %}

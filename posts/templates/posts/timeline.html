@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+  {% if page_obj.number == 1 %}
+    <section class="hero">
+      <h1>Welcome to Juangout</h1>
+      <p>Say what's on your mind. Briefly.</p>
+    </section>
+  {% endif %}
+
+  {% for post in post_list %}
+    {% include "posts/_post.html" %}
+  {% empty %}
+    <p class="empty">Nothing to read yet.</p>
+  {% endfor %}
+
+  {% include "_pagination.html" %}
+{% endblock %}

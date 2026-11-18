@@ -45,3 +45,19 @@ main { padding-top: 1.5rem; padding-bottom: 3rem; }
 .profile h1 { margin: 0; font-size: 1.75rem; letter-spacing: -0.02em; }
 .profile .handle { color: var(--muted); margin: 0 0 .75rem; }
 .profile .bio { margin: 0 0 1rem; }
+
+.section-title { font-size: 1rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 2rem 0 .75rem; }
+
+.post {
+  background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+  padding: .85rem 1rem; margin-bottom: .75rem;
+}
+.post header { font-size: .92rem; color: var(--muted); }
+.post .author { font-weight: 700; color: var(--ink); text-decoration: none; }
+.post .author:hover { text-decoration: underline; }
+.post .when { color: var(--muted); text-decoration: none; }
+.post .when:hover { text-decoration: underline; }
+.post .body { margin: .35rem 0 0; white-space: normal; overflow-wrap: anywhere; }
+
+.pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 1.25rem; color: var(--muted); }
+.pagination a { text-decoration: none; font-weight: 600; }

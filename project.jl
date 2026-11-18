@@ -1,4 +1,4 @@
-# Loads the whole project (apps, settings, views, urls).
+# Loads the whole project (apps, urls, settings).
 using Juango
 using Dates
 
@@ -7,9 +7,10 @@ const BASE_DIR = @__DIR__
 # Apps: each is a module with its own models, views, urls, templates and migrations
 Juango.project_include(joinpath(BASE_DIR, "accounts", "Accounts.jl"))
 using .Accounts
+Juango.project_include(joinpath(BASE_DIR, "posts", "Posts.jl"))
+using .Posts
 
 # project_include: tracked by Revise for runserver's reloading when Revise is loaded
-Juango.project_include(joinpath(BASE_DIR, "views.jl"))
 Juango.project_include(joinpath(BASE_DIR, "urls.jl"))
 Juango.project_include(joinpath(BASE_DIR, "settings.jl"))
 # after a reload, apply the settings again (they hold `urlpatterns`, which urls.jl may have rebuilt)

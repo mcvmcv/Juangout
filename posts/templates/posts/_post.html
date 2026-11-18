@@ -1,0 +1,8 @@
+<article class="post">
+  <header>
+    <a class="author" href="{{ post.author.get_absolute_url }}">{{ post.author.name }}</a>
+    <span class="handle">@{{ post.author.username }}</span> ·
+    <a class="when" href="{{ post.get_absolute_url }}" title="{{ post.created|date:'j M Y, H:i' }}">{{ post.created|timesince }} ago</a>
+  </header>
+  <p class="body">{{ post.body|linebreaksbr }}</p>
+</article>

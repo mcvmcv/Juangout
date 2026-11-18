@@ -10,7 +10,7 @@ configure!(
     # DATABASE_URL=postgresql://user:password@localhost:5432/Juangout (or mysql://, sqlite:////path)
     DATABASE = env_db(; default = "sqlite:///" * joinpath(BASE_DIR, "db.sqlite3")),
     INSTALLED_APPS = ["juango.admin", "juango.auth", "juango.contenttypes", "juango.sessions", "juango.messages",
-                      Accounts.APP],
+                      Accounts.APP, Posts.APP],
     AUTH_USER_MODEL = "accounts.Member",
     MIGRATIONS_DIR = joinpath(BASE_DIR, "migrations"),
     ROOT_URLCONF = urlpatterns,

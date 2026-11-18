@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.author.name }}: “{{ post.body|truncatechars:40 }}” · Juangout{% endblock %}
+
+{% block content %}
+  {% include "posts/_post.html" %}
+  <p><a href="{% url 'posts:timeline' %}">← Back to the timeline</a></p>
+{% endblock %}

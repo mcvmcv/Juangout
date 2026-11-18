@@ -6,7 +6,7 @@ using Juango.Testing
 
     r = get(c, "/")
     @test r.status == 200
-    @test assert_template_used(r, "home.html")
+    @test assert_template_used(r, "posts/timeline.html")
     @test assert_contains(r, "Welcome to Juangout")
 
     r = get(c, reverse_url("about"))
