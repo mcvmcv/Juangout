@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}{{ member.name }} (@{{ member.username }}) · Juangout{% endblock %}
+
+{% block content %}
+  <section class="profile">
+    <h1>{{ member.name }}</h1>
+    <p class="handle">@{{ member.username }} · joined {{ member.date_joined|date:"F Y" }}</p>
+    {% if member.bio %}<p class="bio">{{ member.bio|linebreaksbr }}</p>{% endif %}
+  </section>
+{% endblock %}

@@ -9,8 +9,9 @@ configure!(
     ALLOWED_HOSTS = env("ALLOWED_HOSTS", Vector{String}; default = ["localhost", "127.0.0.1"]),
     # DATABASE_URL=postgresql://user:password@localhost:5432/Juangout (or mysql://, sqlite:////path)
     DATABASE = env_db(; default = "sqlite:///" * joinpath(BASE_DIR, "db.sqlite3")),
-    # Your apps (`julia --project manage.jl startapp blog`) go here too, e.g. Blog.APP
-    INSTALLED_APPS = ["juango.admin", "juango.auth", "juango.contenttypes", "juango.sessions", "juango.messages"],
+    INSTALLED_APPS = ["juango.admin", "juango.auth", "juango.contenttypes", "juango.sessions", "juango.messages",
+                      Accounts.APP],
+    AUTH_USER_MODEL = "accounts.Member",
     MIGRATIONS_DIR = joinpath(BASE_DIR, "migrations"),
     ROOT_URLCONF = urlpatterns,
     TEMPLATE_DIRS = [joinpath(BASE_DIR, "templates")],
@@ -20,3 +21,7 @@ configure!(
     TIME_ZONE = "UTC",
     SITE_NAME = "Juangout",
 )
+
+# Workaround for Juango #242: Admin.urls() (in urls.jl) runs before AUTH_USER_MODEL is set
+# and registers Juango's own User with the admin. Member replaces it.
+Admin.is_registered(Juango.User) && Admin.unregister!(Juango.User)
