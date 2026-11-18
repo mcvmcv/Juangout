@@ -1,0 +1,3 @@
+body { font: 16px/1.6 system-ui, sans-serif; max-width: 46rem; margin: 2rem auto; padding: 0 1rem; color: #222; }
+.msg { padding: .5rem 1rem; background: #eef; border-radius: 4px; }
+.msg.success { background: #e6f6e6; } .msg.error { background: #fde8e8; }
