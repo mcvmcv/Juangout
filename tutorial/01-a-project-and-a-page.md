@@ -78,7 +78,7 @@ julia --project manage.jl help
 ```
 
 It lists dozens of commands. You'll use a handful all the time: `runserver`, `test`,
-`makemigrations`, `migrate` and `shell`.
+`makemigrations` and `migrate`.
 
 **`project.jl`** loads everything. `manage.jl` includes it, and so will your tests:
 
