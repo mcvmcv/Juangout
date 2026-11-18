@@ -1,8 +1,9 @@
 {% extends "base.html" %}
+
 {% block content %}
-  <h1>The install worked successfully! Congratulations!</h1>
-  <p>You are seeing this page because <code>DEBUG = true</code>. Edit <code>views.jl</code> and <code>templates/home.html</code>.</p>
-  <p><a href="{% url 'admin:index' %}">Go to the admin</a> (create a user with <code>julia --project manage.jl createsuperuser</code>).</p>
-  <h2>Latest notes</h2>
-  <ul>{% for note in notes %}<li>{{ note.title }} — {{ note.created|timesince }} ago</li>{% empty %}<li>No notes yet.</li>{% endfor %}</ul>
+  <section class="hero">
+    <h1>Welcome to Juangout</h1>
+    <p>{{ tagline }}</p>
+  </section>
+  <p class="empty">Nothing to read yet. Posts arrive in chapter 3.</p>
 {% endblock %}

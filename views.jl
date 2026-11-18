@@ -1,3 +1,4 @@
+# A view takes a request and returns a response.
 function home(req)
-    render(req, "home.html", Dict("notes" => objects(Note)[1:10]))
+    render(req, "home.html", Dict("tagline" => "Say what's on your mind. Briefly."))
 end
