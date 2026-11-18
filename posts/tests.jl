@@ -64,3 +64,56 @@ end
         @test haskey(errs, :body)
     end
 end
+
+@testset "writing posts" begin
+    rollback_after() do
+        ann = create_user("ann"; password = "correct-horse-battery")
+        c = Client()
+
+        # visitors are sent to log in
+        r = post(c, "/posts/new/", Dict("body" => "Sneaky"))
+        @test assert_redirects(r, "/accounts/login/?next=%2Fposts%2Fnew%2F")
+        @test count(objects(Post)) == 0
+
+        force_login!(c, ann)
+        @test assert_contains(get(c, "/"), "What&#x27;s on your mind?")    # the compose box
+
+        r = post(c, "/posts/new/", Dict("body" => "My first real post"); follow = true)
+        @test r.status == 200
+        @test assert_contains(r, "Posted.")
+        p = only(objects(Post))
+        @test p.author == ann
+        @test p.body == "My first real post"
+
+        # empty and too-long posts are refused, with the form shown again
+        for body in ("", "x"^281)
+            r = post(c, "/posts/new/", Dict("body" => body))
+            @test r.status == 200
+            @test haskey(r.context["form"].errors, :body)
+        end
+        @test count(objects(Post)) == 1
+    end
+end
+
+@testset "deleting posts" begin
+    rollback_after() do
+        ann = create_user("ann"; password = "correct-horse-battery")
+        bob = create_user("bob"; password = "correct-horse-battery")
+        mine = create(Post; author = ann, body = "Delete me")
+        theirs = create(Post; author = bob, body = "Not yours")
+        c = Client()
+        force_login!(c, ann)
+
+        @test assert_contains(get(c, "/"), "/posts/$(mine.id)/delete/")
+        @test assert_not_contains(get(c, "/"), "/posts/$(theirs.id)/delete/")
+
+        @test get(c, "/posts/$(theirs.id)/delete/").status == 404
+        @test post(c, "/posts/$(theirs.id)/delete/").status == 404
+        @test count(filter(Post; id = theirs.id)) == 1
+
+        @test get(c, "/posts/$(mine.id)/delete/").status == 200        # the confirmation page
+        r = post(c, "/posts/$(mine.id)/delete/")
+        @test assert_redirects(r, "/")
+        @test count(filter(Post; id = mine.id)) == 0
+    end
+end

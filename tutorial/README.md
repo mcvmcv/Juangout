@@ -61,7 +61,7 @@ julia> 1 + 1
 1. [A project and a page](01-a-project-and-a-page.md): projects, URLs, views, templates, static files and your first test
 2. [Members](02-members.md): apps, a custom user model, migrations and the admin
 3. [Posts and the timeline](03-posts-and-the-timeline.md): models, the ORM, list views and pagination
-4. Signing up and posting: authentication, forms, CSRF and messages
+4. [Signing up and posting](04-signing-up-and-posting.md): authentication, forms, CSRF and messages
 5. Follows and likes: many-to-many relations, annotations and aggregation
 6. Replies and threads: self-referencing relations and query performance
 7. Pictures: file uploads

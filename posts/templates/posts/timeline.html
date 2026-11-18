@@ -2,10 +2,14 @@
 
 {% block content %}
   {% if page_obj.number == 1 %}
-    <section class="hero">
-      <h1>Welcome to Juangout</h1>
-      <p>Say what's on your mind. Briefly.</p>
-    </section>
+    {% if user.is_authenticated %}
+      {% include "posts/_compose_form.html" %}
+    {% else %}
+      <section class="hero">
+        <h1>Welcome to Juangout</h1>
+        <p>Say what's on your mind. Briefly. <a href="{% url 'accounts:signup' %}">Sign up</a> or <a href="{% url 'login' %}">log in</a>.</p>
+      </section>
+    {% endif %}
   {% endif %}
 
   {% for post in post_list %}

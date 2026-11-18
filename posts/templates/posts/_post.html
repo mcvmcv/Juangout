@@ -3,6 +3,7 @@
     <a class="author" href="{{ post.author.get_absolute_url }}">{{ post.author.name }}</a>
     <span class="handle">@{{ post.author.username }}</span> ·
     <a class="when" href="{{ post.get_absolute_url }}" title="{{ post.created|date:'j M Y, H:i' }}">{{ post.created|timesince }} ago</a>
+    {% if post.author_id == user.id %}· <a class="delete" href="{% url 'posts:delete' post.id %}">delete</a>{% endif %}
   </header>
   <p class="body">{{ post.body|linebreaksbr }}</p>
 </article>

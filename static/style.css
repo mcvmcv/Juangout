@@ -61,3 +61,29 @@ main { padding-top: 1.5rem; padding-bottom: 3rem; }
 
 .pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 1.25rem; color: var(--muted); }
 .pagination a { text-decoration: none; font-weight: 600; }
+
+/* forms */
+.form { margin: 1rem 0 1.5rem; }
+.form > div { margin-bottom: .9rem; }
+.form label { display: block; font-weight: 600; margin-bottom: .25rem; }
+.form input[type=text], .form input[type=email], .form input[type=password], .form textarea {
+  width: 100%; padding: .55rem .7rem; font: inherit; color: inherit;
+  background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+}
+.form textarea { min-height: 6rem; resize: vertical; }
+.form input:focus, .form textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+.form .helptext, .form [id$=_helptext] { display: block; color: var(--muted); font-size: .85rem; margin-top: .2rem; }
+.errorlist { color: #b42318; margin: .25rem 0; padding: 0; list-style: none; font-size: .9rem; }
+.compose textarea { min-height: 4.5rem; }
+
+button {
+  font: inherit; font-weight: 600; padding: .5rem 1.1rem; border: 0; border-radius: 999px;
+  background: var(--accent); color: #fff; cursor: pointer;
+}
+button:hover { filter: brightness(1.08); }
+button.danger { background: #b42318; }
+button.link { background: none; color: var(--muted); padding: 0; font-weight: 400; border-radius: 0; }
+button.link:hover { color: var(--accent); filter: none; }
+form.inline { display: inline; margin-left: 1rem; }
+.aside { color: var(--muted); }
+.post .delete { color: var(--muted); }
