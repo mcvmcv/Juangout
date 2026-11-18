@@ -1,4 +1,3 @@
 db.sqlite3*
-Manifest.toml
 .env
 build/
