@@ -3,7 +3,7 @@ module Accounts
 
 using Juango
 using Dates
-using ..Posts: with_like_info     # profiles show posts
+using ..Posts: for_display     # profiles show posts
 
 export Member, Follow
 

@@ -3,6 +3,26 @@
 {% block title %}{{ post.author.name }}: “{{ post.body|truncatechars:40 }}” · Juangout{% endblock %}
 
 {% block content %}
-  {% include "posts/_post.html" %}
-  <p><a href="{% url 'posts:timeline' %}">← Back to the timeline</a></p>
+  {% if parent %}
+    <div class="thread-parent">
+      {% include "posts/_post.html" with post=parent %}
+    </div>
+  {% endif %}
+
+  <div class="thread-focus">
+    {% include "posts/_post.html" %}
+  </div>
+
+  {% if user.is_authenticated %}
+    {% include "posts/_compose_form.html" with reply_to=post %}
+  {% endif %}
+
+  <h2 class="section-title">{{ post.reply_count }} repl{{ post.reply_count|pluralize:"y,ies" }}</h2>
+  <div class="replies">
+    {% for reply in replies %}
+      {% include "posts/_post.html" with post=reply %}
+    {% empty %}
+      <p class="empty">No replies yet.</p>
+    {% endfor %}
+  </div>
 {% endblock %}

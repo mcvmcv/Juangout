@@ -148,11 +148,11 @@ end
 
         # annotate: one query, with the count and whether this member likes each post
         add!(p.likers, bob)
-        row = only(with_like_info(objects(Post), ann))
+        row = only(for_display(objects(Post), ann))
         @test row.like_count == 1
         @test row.liked == false
-        @test only(with_like_info(objects(Post), bob)).liked == true
-        @test only(with_like_info(objects(Post), AnonymousUser())).like_count == 1
+        @test only(for_display(objects(Post), bob)).liked == true
+        @test only(for_display(objects(Post), AnonymousUser())).like_count == 1
 
         # the heart button toggles, and goes back to the page it was on
         c = Client()
@@ -174,5 +174,83 @@ end
         @test assert_redirects(r, "/posts/$(p.id)/")
         @test post(Client(), "/posts/$(p.id)/like/").status == 302       # to the login page
         @test get(c, "/posts/$(p.id)/like/").status == 405
+    end
+end
+
+@testset "replies" begin
+    rollback_after() do
+        ann = create_user("ann"; password = "correct-horse-battery")
+        bob = create_user("bob"; password = "correct-horse-battery")
+        question = create(Post; author = ann, body = "Tabs or spaces?")
+        c = Client()
+        force_login!(c, bob)
+
+        r = post(c, "/posts/$(question.id)/reply/", Dict("body" => "Spaces, obviously"); follow = true)
+        @test assert_contains(r, "Replied.")
+        @test r.context["post"] == question                    # back on the question's page
+        answer = only(question.replies)
+        @test answer.author == bob
+        @test answer.reply_to == question
+
+        # the question's page shows the reply and counts it
+        @test [p.body for p in r.context["replies"]] == ["Spaces, obviously"]
+        @test r.context["post"].reply_count == 1
+        # the reply's page shows what it replies to
+        r = get(c, get_absolute_url(answer))
+        @test r.context["parent"] == question
+        @test assert_contains(r, "replying to")
+
+        # timelines show only conversations' first posts; profiles show replies too
+        @test [p.body for p in get(c, "/everyone/").context["post_list"]] == ["Tabs or spaces?"]
+        @test assert_contains(get(c, "/@bob/"), "Spaces, obviously")
+
+        @test post(c, "/posts/999999/reply/", Dict("body" => "?")).status == 404
+        # deleting a post deletes its replies
+        delete!(question)
+        @test count(objects(Post)) == 0
+    end
+end
+
+@testset "counting likes and replies together" begin
+    rollback_after() do
+        ann = create_user("ann"; password = "correct-horse-battery")
+        bob = create_user("bob"; password = "correct-horse-battery")
+        p = create(Post; author = ann, body = "Popular")
+        add!(p.likers, ann, bob)
+        for i in 1:3
+            create(Post; author = bob, body = "reply $i", reply_to = p)
+        end
+        # Without distinct = true, joining both likes and replies would give 2 × 3 = 6 of each
+        row = first(for_display(filter(Post; id = p.id), ann))
+        @test row.like_count == 2
+        @test row.reply_count == 3
+    end
+end
+
+@testset "queries per page" begin
+    rollback_after() do
+        ann = create_user("ann"; password = "correct-horse-battery")
+        bob = create_user("bob"; password = "correct-horse-battery")
+        add!(ann.following, bob)
+        c = Client()
+        force_login!(c, ann)
+
+        # NPLUSONE = :raise turns Juango's N+1 warning into an error
+        override_settings(DEBUG = true, NPLUSONE = :raise) do
+            make_posts(n) = for i in 1:n
+                p = create(Post; author = isodd(i) ? ann : bob, body = "post $i")
+                create(Post; author = bob, body = "reply to $i", reply_to = p)
+            end
+            make_posts(3)
+            _, few = count_queries(() -> get(c, "/"))
+            make_posts(15)
+            _, many = count_queries(() -> get(c, "/"))
+            @test few == many                 # the same number of queries, however many posts
+
+            q = first(filter(Post; reply_to__isnull = true))
+            for url in ("/", "/everyone/", "/@bob/", get_absolute_url(q), get_absolute_url(first(q.replies)))
+                @test get(c, url).status == 200
+            end
+        end
     end
 end

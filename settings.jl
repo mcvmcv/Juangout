@@ -3,8 +3,14 @@
 using Juango.Environ
 read_env(joinpath(BASE_DIR, ".env"))
 
+debug = env("DEBUG", Bool; default = true)
+
 configure!(
-    DEBUG = env("DEBUG", Bool; default = true),
+    DEBUG = debug,
+    # in development, a panel on every page with its SQL queries, templates and timings
+    MIDDLEWARE = debug ? [DebugToolbarMiddleware, Juango.default_settings()[:MIDDLEWARE]...] :
+                         Juango.default_settings()[:MIDDLEWARE],
+    INTERNAL_IPS = ["127.0.0.1", "::1"],
     SECRET_KEY = env("SECRET_KEY"; default = "TDD7oiWM28hi1EgFjGvJ2RemZXSOFDPDgSxRbntMUYjVFhzunc"),
     ALLOWED_HOSTS = env("ALLOWED_HOSTS", Vector{String}; default = ["localhost", "127.0.0.1"]),
     # DATABASE_URL=postgresql://user:password@localhost:5432/Juangout (or mysql://, sqlite:////path)

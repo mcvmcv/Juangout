@@ -4,9 +4,13 @@
     <span class="handle">@{{ post.author.username }}</span> ·
     <a class="when" href="{{ post.get_absolute_url }}" title="{{ post.created|date:'j M Y, H:i' }}">{{ post.created|timesince }} ago</a>
     {% if post.author_id == user.id %}· <a class="delete" href="{% url 'posts:delete' post.id %}">delete</a>{% endif %}
+    {% if post.reply_to %}
+      <div class="replying-to">replying to <a href="{{ post.reply_to.get_absolute_url }}">@{{ post.reply_to.author.username }}</a></div>
+    {% endif %}
   </header>
   <p class="body">{{ post.body|linebreaksbr }}</p>
   <footer>
+    <a class="replies-link" href="{{ post.get_absolute_url }}" title="Replies">💬 {{ post.reply_count }}</a>
     {% if user.is_authenticated %}
       <form method="post" action="{% url 'posts:like' post.id %}" class="like-form">
         {% csrf_token %}

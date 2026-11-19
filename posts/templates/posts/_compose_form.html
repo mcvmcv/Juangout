@@ -1,5 +1,7 @@
-<form method="post" action="{% url 'posts:create' %}" class="form compose">
+{# The form for a new post, or for a reply when `reply_to` is set. #}
+<form method="post" class="form compose"
+      action="{% if reply_to %}{% url 'posts:reply' reply_to.id %}{% else %}{% url 'posts:create' %}{% endif %}">
   {% csrf_token %}
   {{ form.as_div }}
-  <button type="submit">Post</button>
+  <button type="submit">{% if reply_to %}Reply{% else %}Post{% endif %}</button>
 </form>

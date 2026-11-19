@@ -3,7 +3,7 @@ function profile(req; username)
     me = req.user
     render(req, "accounts/profile.html", Dict(
         "member" => member,
-        "posts" => with_like_info(member.posts, me)[1:20],
+        "posts" => for_display(member.posts, me)[1:20],
         "follower_count" => count(member.followers),
         "following_count" => count(member.following),
         "is_me" => is_authenticated(me) && me.id == member.id,

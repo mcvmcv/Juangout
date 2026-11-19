@@ -1,8 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}New post · Juangout{% endblock %}
+{% block title %}{% if parent %}Reply{% else %}New post{% endif %} · Juangout{% endblock %}
 
 {% block content %}
-  <h1>New post</h1>
-  {% include "posts/_compose_form.html" %}
+  {% if parent %}
+    <h1>Reply to {{ parent.author.name }}</h1>
+    <blockquote class="quoted">{{ parent.body|linebreaksbr }}</blockquote>
+    {% include "posts/_compose_form.html" with reply_to=parent %}
+  {% else %}
+    <h1>New post</h1>
+    {% include "posts/_compose_form.html" %}
+  {% endif %}
 {% endblock %}

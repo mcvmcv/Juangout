@@ -1,6 +1,6 @@
 # The form for writing a post: a ModelForm builds its fields from the model's.
-post_form(data = nothing; instance = nothing) =
-    ModelForm(Post; data, instance, fields = [:body], labels = Dict(:body => "What's on your mind?"))
+post_form(data = nothing; instance = nothing, label = "What's on your mind?") =
+    ModelForm(Post; data, instance, fields = [:body], labels = Dict(:body => label))
 
 # What a member's home timeline shows: posts by the people they follow, and their own.
 # Visitors who aren't logged in see everyone's.
@@ -9,29 +9,45 @@ function feed(user)
     filter(Post, Q(author__in = user.following) | Q(author = user))
 end
 
+# Timelines show conversations' first posts; replies are on each post's page.
+top_level(posts) = filter(posts; reply_to__isnull = true)
+
 # Generic views: configured, not written. ListView fetches a page of rows and renders a
 # template with them; DetailView fetches one row by the id in the URL.
 const timeline = ListView(Post; template = "posts/timeline.html", paginate_by = 20,
-    get_queryset = v -> with_like_info(feed(v.request.user), v.request.user),
+    get_queryset = v -> for_display(top_level(feed(v.request.user)), v.request.user),
     get_context_data = (v, ctx) -> (ctx["form"] = post_form(); ctx["tab"] = "feed"; ctx))
 
 const everyone = ListView(Post; template = "posts/timeline.html", paginate_by = 20,
-    get_queryset = v -> with_like_info(objects(Post), v.request.user),
+    get_queryset = v -> for_display(top_level(objects(Post)), v.request.user),
     get_context_data = (v, ctx) -> (ctx["form"] = post_form(); ctx["tab"] = "everyone"; ctx))
 
+# A post's page: the post it replies to (if any), the post, a reply form, and the replies,
+# oldest first so they read as a conversation.
 const post_detail = DetailView(Post; template = "posts/detail.html",
-    get_queryset = v -> with_like_info(objects(Post), v.request.user))
+    get_queryset = v -> for_display(objects(Post), v.request.user),
+    get_context_data = function (v, ctx)
+        post, user = v.object, v.request.user
+        ctx["parent"] = post.reply_to_id === nothing ? nothing :
+                        first(for_display(filter(Post; id = post.reply_to_id), user))
+        ctx["replies"] = order_by(for_display(post.replies, user), "created")
+        ctx["form"] = post_form(; label = "Your reply")
+        ctx
+    end)
 
-# Writing a post, the long way: GET shows the form, a valid POST saves it and redirects,
+# Writing a post or a reply: GET shows the form, a valid POST saves it and redirects,
 # an invalid POST shows the form again with its errors.
-function post_create(req)
-    form = post_form(req.method == "POST" ? req.POST : nothing; instance = Post(; author = req.user))
+function post_create(req; id = nothing)
+    parent = id === nothing ? nothing : get_object_or_404(Post; id)
+    form = post_form(req.method == "POST" ? req.POST : nothing;
+                     instance = Post(; author = req.user, reply_to = parent),
+                     label = parent === nothing ? "What's on your mind?" : "Your reply")
     if req.method == "POST" && is_valid(form)
         save!(form)
-        message!(req, :success, "Posted.")
-        return redirect("posts:timeline")
+        message!(req, :success, parent === nothing ? "Posted." : "Replied.")
+        return parent === nothing ? redirect("posts:timeline") : redirect(parent)
     end
-    render(req, "posts/compose.html", Dict("form" => form))
+    render(req, "posts/compose.html", Dict("form" => form, "parent" => parent))
 end
 
 # Members may delete only their own posts: the queryset leaves everyone else's out, so

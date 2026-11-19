@@ -92,7 +92,7 @@ form.inline { display: inline; margin-left: 1rem; }
 .post footer { margin-top: .4rem; }
 .like-form { display: inline; }
 button.like, span.like {
-  background: none; color: var(--muted); padding: .1rem .5rem; margin-left: -.5rem;
+  background: none; color: var(--muted); padding: .1rem .5rem;
   font-weight: 400; border-radius: 999px;
 }
 button.like:hover { color: var(--accent); background: var(--accent-soft); filter: none; }
@@ -110,3 +110,13 @@ button.secondary { background: var(--card); color: var(--ink); border: 1px solid
 .members { list-style: none; padding: 0; }
 .members li { padding: .6rem 0; border-bottom: 1px solid var(--line); }
 .members .handle, .members .bio { color: var(--muted); }
+
+/* replies and threads */
+.replies-link { color: var(--muted); text-decoration: none; margin-right: .75rem; }
+.replies-link:hover { color: var(--accent); }
+.replying-to { font-size: .85rem; }
+.replying-to a { color: var(--muted); }
+.thread-parent .post { border-bottom-left-radius: 0; border-bottom-right-radius: 0; margin-bottom: 0; opacity: .85; }
+.thread-focus .post { border-color: var(--accent); }
+.replies { margin-left: 1.25rem; padding-left: .75rem; border-left: 2px solid var(--line); }
+.quoted { margin: 0 0 1rem; padding: .5rem 1rem; border-left: 3px solid var(--line); color: var(--muted); }
