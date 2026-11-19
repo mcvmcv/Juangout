@@ -5,12 +5,28 @@
 {% block content %}
   <section class="profile">
     <h1>{{ member.name }}</h1>
-    <p class="handle">@{{ member.username }} · joined {{ member.date_joined|date:"F Y" }}</p>
+    <p class="handle">@{{ member.username }}{% if follows_me %} <span class="badge">follows you</span>{% endif %}
+       · joined {{ member.date_joined|date:"F Y" }}</p>
     {% if member.bio %}<p class="bio">{{ member.bio|linebreaksbr }}</p>{% endif %}
+    <p class="counts">
+      <a href="{% url 'accounts:followers' member.username %}"><strong>{{ follower_count }}</strong> follower{{ follower_count|pluralize }}</a>
+      <a href="{% url 'accounts:following' member.username %}"><strong>{{ following_count }}</strong> following</a>
+    </p>
+    {% if user.is_authenticated and not is_me %}
+      {% if i_follow %}
+        <form method="post" action="{% url 'accounts:unfollow' member.username %}">
+          {% csrf_token %}<button type="submit" class="secondary">Unfollow</button>
+        </form>
+      {% else %}
+        <form method="post" action="{% url 'accounts:follow' member.username %}">
+          {% csrf_token %}<button type="submit">Follow</button>
+        </form>
+      {% endif %}
+    {% endif %}
   </section>
 
   <h2 class="section-title">Posts</h2>
-  {% for post in member.posts %}
+  {% for post in posts %}
     {% include "posts/_post.html" %}
   {% empty %}
     <p class="empty">{{ member.name }} hasn't posted anything yet.</p>

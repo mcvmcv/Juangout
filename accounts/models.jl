@@ -4,6 +4,9 @@
     display_name = CharField(max_length = 50, blank = true,
                              help_text = "The name shown on your posts. Leave blank to use your username.")
     bio = TextField(max_length = 300, blank = true)
+    # who this member follows: a one-way relation from members to members, stored as Follow rows
+    following = ManyToManyField(:self; symmetrical = false, through = :Follow,
+                                through_fields = (:follower, :followed), related_name = :followers, blank = true)
 end
 
 Base.show(io::IO, m::Member) = print(io, "@", m.username)
@@ -12,3 +15,14 @@ Base.show(io::IO, m::Member) = print(io, "@", m.username)
 Juango.tattr(m::Member, ::Val{:name}) = isempty(m.display_name) ? m.username : m.display_name
 
 Juango.get_absolute_url(m::Member) = reverse_url("accounts:profile"; username = m.username)
+
+# One member following another. An explicit "through" model, so it can record when.
+@model struct Follow
+    follower = ForeignKey(Member; on_delete = :CASCADE, related_name = :outgoing_follows)
+    followed = ForeignKey(Member; on_delete = :CASCADE, related_name = :incoming_follows)
+    created = DateTimeField(auto_now_add = true)
+    Meta(constraints = [
+        UniqueConstraint(fields = [:follower, :followed], name = "follow_once"),
+        CheckConstraint(condition = !Q(follower = F(:followed)), name = "no_following_yourself"),
+    ])
+end

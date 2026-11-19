@@ -31,5 +31,12 @@ function seed(args)
         p.created = timezone_now() - Minute(17 * (length(DEMO_POSTS) - i) + rand(0:9))
         save!(p)
     end
+    # everyone follows a couple of people, and likes some posts
+    for (i, m) in enumerate(members)
+        add!(m.following, members[mod1(i + 1, length(members))], members[mod1(i + 2, length(members))])
+        for p in objects(Post)[1:6]
+            rand() < 0.5 && add!(p.likers, m)
+        end
+    end
     println("Created $(length(DEMO_POSTS)) posts by $(length(members)) members (password: juangout-demo).")
 end

@@ -4,7 +4,7 @@ module Posts
 using Juango
 using Dates
 
-export Post
+export Post, Like, with_like_info
 
 const APP = App("posts"; mod = @__MODULE__, path = @__DIR__, urls = () -> urlpatterns,
                 commands = Dict("seed" => ("Create demo members and posts", args -> seed(args))))

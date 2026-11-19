@@ -117,3 +117,62 @@ end
         @test count(filter(Post; id = mine.id)) == 0
     end
 end
+
+@testset "the following feed" begin
+    rollback_after() do
+        ann = create_user("ann"; password = "correct-horse-battery")
+        bob = create_user("bob"; password = "correct-horse-battery")
+        cat = create_user("cat"; password = "correct-horse-battery")
+        for (i, m) in enumerate((ann, bob, cat))           # an hour apart, ann's the oldest
+            p = create(Post; author = m, body = "by $(m.username)")
+            p.created = timezone_now() - Hour(4 - i); save!(p)
+        end
+        add!(ann.following, bob)
+
+        bodies(r) = Set(p.body for p in r.context["post_list"])
+        c = Client()
+        @test bodies(get(c, "/")) == Set(["by ann", "by bob", "by cat"])        # visitors see everyone
+        force_login!(c, ann)
+        @test bodies(get(c, "/")) == Set(["by ann", "by bob"])                  # people ann follows, and ann
+        @test bodies(get(c, "/everyone/")) == Set(["by ann", "by bob", "by cat"])
+        # newest first, even though like counts make it a GROUP BY query
+        @test [p.body for p in get(c, "/everyone/").context["post_list"]] == ["by cat", "by bob", "by ann"]
+    end
+end
+
+@testset "likes" begin
+    rollback_after() do
+        ann = create_user("ann"; password = "correct-horse-battery")
+        bob = create_user("bob"; password = "correct-horse-battery")
+        p = create(Post; author = bob, body = "Like me")
+
+        # annotate: one query, with the count and whether this member likes each post
+        add!(p.likers, bob)
+        row = only(with_like_info(objects(Post), ann))
+        @test row.like_count == 1
+        @test row.liked == false
+        @test only(with_like_info(objects(Post), bob)).liked == true
+        @test only(with_like_info(objects(Post), AnonymousUser())).like_count == 1
+
+        # the heart button toggles, and goes back to the page it was on
+        c = Client()
+        force_login!(c, ann)
+        r = post(c, "/posts/$(p.id)/like/", Dict("next" => "/everyone/?page=1"))
+        @test assert_redirects(r, "/everyone/?page=1")
+        @test ann in p.likers
+        @test count(Like) == 2
+        r = get(c, "/posts/$(p.id)/")
+        @test r.context["post"].like_count == 2
+        @test r.context["post"].liked
+        @test assert_contains(r, "aria-pressed=\"true\"")
+
+        post(c, "/posts/$(p.id)/like/")
+        @test !(ann in p.likers)
+
+        # never redirect off the site
+        r = post(c, "/posts/$(p.id)/like/", Dict("next" => "https://evil.example/"))
+        @test assert_redirects(r, "/posts/$(p.id)/")
+        @test post(Client(), "/posts/$(p.id)/like/").status == 302       # to the login page
+        @test get(c, "/posts/$(p.id)/like/").status == 405
+    end
+end

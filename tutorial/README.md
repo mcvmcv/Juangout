@@ -62,7 +62,7 @@ julia> 1 + 1
 2. [Members](02-members.md): apps, a custom user model, migrations and the admin
 3. [Posts and the timeline](03-posts-and-the-timeline.md): models, the ORM, list views and pagination
 4. [Signing up and posting](04-signing-up-and-posting.md): authentication, forms, CSRF and messages
-5. Follows and likes: many-to-many relations, annotations and aggregation
+5. [Follows and likes](05-follows-and-likes.md): many-to-many relations, annotations and aggregation
 6. Replies and threads: self-referencing relations and query performance
 7. Pictures: file uploads
 8. htmx: interactive pages without writing JavaScript

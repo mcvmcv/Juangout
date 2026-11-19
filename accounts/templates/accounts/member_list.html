@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}{{ heading }} of {{ member.name }} · Juangout{% endblock %}
+
+{% block content %}
+  <p><a href="{{ member.get_absolute_url }}">← {{ member.name }}</a></p>
+  <h1>{{ heading }}</h1>
+  <ul class="members">
+    {% for m in member_list %}
+      <li><a class="author" href="{{ m.get_absolute_url }}">{{ m.name }}</a> <span class="handle">@{{ m.username }}</span>
+        {% if m.bio %}<br><span class="bio">{{ m.bio|truncatechars:80 }}</span>{% endif %}</li>
+    {% empty %}
+      <li class="empty">Nobody yet.</li>
+    {% endfor %}
+  </ul>
+  {% include "_pagination.html" %}
+{% endblock %}

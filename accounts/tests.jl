@@ -131,3 +131,54 @@ end
         @test check_password(refresh!(ann), "staple-battery-horse")
     end
 end
+
+@testset "following" begin
+    rollback_after() do
+        ann = create_user("ann"; password = "correct-horse-battery")
+        bob = create_user("bob"; password = "correct-horse-battery")
+
+        # the relation, in Julia
+        add!(ann.following, bob)
+        @test bob in ann.following
+        @test ann in bob.followers
+        @test !(ann in bob.following)                 # one-way: symmetrical = false
+        @test count(Follow) == 1
+        add!(ann.following, bob)                      # adding again changes nothing
+        @test count(Follow) == 1
+        remove!(ann.following, bob)
+        @test count(ann.following) == 0
+
+        # the database refuses a member following themselves. A failed write spoils the
+        # transaction it's in, so give it a transaction of its own (a savepoint) with atomic.
+        @test_throws IntegrityError atomic() do
+            create(Follow; follower = ann, followed = ann)
+        end
+
+        # through the buttons
+        c = Client()
+        @test assert_redirects(post(c, "/@bob/follow/"), "/accounts/login/?next=%2F%40bob%2Ffollow%2F")
+        force_login!(c, ann)
+        @test get(c, "/@bob/follow/").status == 405   # POST only
+        r = post(c, "/@bob/follow/"; follow = true)
+        @test assert_contains(r, "You&#x27;re following bob.")
+        @test r.context["i_follow"]
+        @test r.context["follower_count"] == 1
+        @test bob in ann.following
+
+        r = post(c, "/@ann/follow/"; follow = true)
+        @test assert_contains(r, "You can&#x27;t follow yourself.")
+
+        r = get(Client(), "/@ann/following/")
+        @test [m.username for m in r.context["member_list"]] == ["bob"]
+        r = get(Client(), "/@bob/followers/")
+        @test [m.username for m in r.context["member_list"]] == ["ann"]
+        @test get(Client(), "/@nobody/followers/").status == 404
+
+        force_login!(c, bob)
+        @test get(c, "/@ann/").context["follows_me"]
+
+        force_login!(c, ann)
+        post(c, "/@bob/unfollow/")
+        @test count(ann.following) == 0
+    end
+end

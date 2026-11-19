@@ -6,4 +6,17 @@
     {% if post.author_id == user.id %}· <a class="delete" href="{% url 'posts:delete' post.id %}">delete</a>{% endif %}
   </header>
   <p class="body">{{ post.body|linebreaksbr }}</p>
+  <footer>
+    {% if user.is_authenticated %}
+      <form method="post" action="{% url 'posts:like' post.id %}" class="like-form">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <button type="submit" class="like{% if post.liked %} liked{% endif %}"
+                aria-pressed="{% if post.liked %}true{% else %}false{% endif %}"
+                title="{% if post.liked %}Unlike{% else %}Like{% endif %}">♥ {{ post.like_count }}</button>
+      </form>
+    {% else %}
+      <span class="like" title="Likes">♥ {{ post.like_count }}</span>
+    {% endif %}
+  </footer>
 </article>

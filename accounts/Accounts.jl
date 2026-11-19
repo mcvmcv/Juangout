@@ -3,8 +3,9 @@ module Accounts
 
 using Juango
 using Dates
+using ..Posts: with_like_info     # profiles show posts
 
-export Member
+export Member, Follow
 
 const APP = App("accounts"; mod = @__MODULE__, path = @__DIR__, urls = () -> urlpatterns)
 

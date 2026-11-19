@@ -87,3 +87,26 @@ button.link:hover { color: var(--accent); filter: none; }
 form.inline { display: inline; margin-left: 1rem; }
 .aside { color: var(--muted); }
 .post .delete { color: var(--muted); }
+
+/* follows and likes */
+.post footer { margin-top: .4rem; }
+.like-form { display: inline; }
+button.like, span.like {
+  background: none; color: var(--muted); padding: .1rem .5rem; margin-left: -.5rem;
+  font-weight: 400; border-radius: 999px;
+}
+button.like:hover { color: var(--accent); background: var(--accent-soft); filter: none; }
+button.like.liked { color: var(--accent); font-weight: 700; }
+button.secondary { background: var(--card); color: var(--ink); border: 1px solid var(--line); }
+
+.counts a { margin-right: 1rem; color: var(--muted); text-decoration: none; }
+.counts a strong { color: var(--ink); }
+.badge { font-size: .75rem; background: var(--accent-soft); color: var(--accent); padding: .1rem .45rem; border-radius: 4px; }
+
+.tabs { display: flex; gap: 1.25rem; border-bottom: 1px solid var(--line); margin-bottom: 1rem; }
+.tabs a { padding: .4rem 0; color: var(--muted); text-decoration: none; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tabs a[aria-current=page] { color: var(--ink); font-weight: 600; border-bottom-color: var(--accent); }
+
+.members { list-style: none; padding: 0; }
+.members li { padding: .6rem 0; border-bottom: 1px solid var(--line); }
+.members .handle, .members .bio { color: var(--muted); }
