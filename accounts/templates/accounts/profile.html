@@ -4,6 +4,7 @@
 
 {% block content %}
   <section class="profile">
+    {% include "accounts/_avatar.html" with size=96 %}
     <h1>{{ member.name }}</h1>
     <p class="handle">@{{ member.username }}{% if follows_me %} <span class="badge">follows you</span>{% endif %}
        · joined {{ member.date_joined|date:"F Y" }}</p>

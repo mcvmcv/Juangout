@@ -254,3 +254,45 @@ end
         end
     end
 end
+
+# a real 1×1 PNG, small enough to write out by hand
+const TINY_PNG = hex2bytes("89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c4890000000d4944415478da6364f8cf500f00038601805a347d6b0000000049454e44ae426082")
+
+@testset "pictures in posts" begin
+    rollback_after() do
+        ann = create_user("ann"; password = "correct-horse-battery")
+        c = Client()
+        force_login!(c, ann)
+
+        # a picture without a description is refused by the model's clean rule
+        r = post(c, "/posts/new/", Dict("body" => "Look!", "image" => UploadedFile("dot.png", TINY_PNG)))
+        @test r.status == 200
+        @test r.context["form"].errors[:image_alt] == ["Please describe the picture."]
+
+        r = post(c, "/posts/new/", Dict("body" => "Look!", "image" => UploadedFile("dot.png", TINY_PNG),
+                                        "image_alt" => "A single orange pixel"))
+        @test assert_redirects(r, "/")
+        p = only(objects(Post))
+        @test !isempty(p.image)
+        @test startswith(p.image.url, "/media/posts/")
+        @test (p.image_width, p.image_height) == (1, 1)         # read from the file
+        r = get(c, get_absolute_url(p))
+        @test assert_contains(r, "alt=\"A single orange pixel\"")
+        @test assert_contains(r, "width=\"1\" height=\"1\"")
+
+        # something that isn't an image is refused
+        r = post(c, "/posts/new/", Dict("body" => "Sneaky", "image" => UploadedFile("evil.png", "<script>alert(1)</script>"),
+                                        "image_alt" => "Not really a picture"))
+        @test haskey(r.context["form"].errors, :image)
+
+        # and so is a picture that's too big (here a valid PNG header followed by 5 MB of padding)
+        big = vcat(TINY_PNG, zeros(UInt8, 5_000_001))
+        r = post(c, "/posts/new/", Dict("body" => "Huge", "image" => UploadedFile("big.png", big), "image_alt" => "Big"))
+        @test haskey(r.context["form"].errors, :image)
+        @test count(objects(Post)) == 1
+
+        # posts without pictures still work, and have no <img> for one
+        r = post(c, "/posts/new/", Dict("body" => "Just words"); follow = true)
+        @test assert_not_contains(r, "post-image\"><img"; html = false)
+    end
+end

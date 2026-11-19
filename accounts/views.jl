@@ -60,7 +60,7 @@ end
 # Editing your own profile. UpdateView shows a form for one object and saves it; the
 # get_object hook makes that object the logged-in member, whatever the URL.
 const profile_edit = UpdateView(Member;
-    fields = [:display_name, :bio, :email],
+    fields = [:display_name, :bio, :avatar, :email],
     template = "accounts/profile_edit.html",
     login_required = true,
     get_object = v -> v.request.user,

@@ -64,7 +64,7 @@ julia> 1 + 1
 4. [Signing up and posting](04-signing-up-and-posting.md): authentication, forms, CSRF and messages
 5. [Follows and likes](05-follows-and-likes.md): many-to-many relations, annotations and aggregation
 6. [Replies and threads](06-replies-and-threads.md): self-referencing relations and query performance
-7. Pictures: file uploads
+7. [Pictures](07-pictures.md): file uploads
 8. htmx: interactive pages without writing JavaScript
 9. Notifications: signals, email and background tasks
 10. Live updates: a timeline that updates itself

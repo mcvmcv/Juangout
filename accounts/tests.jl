@@ -182,3 +182,21 @@ end
         @test count(ann.following) == 0
     end
 end
+
+@testset "avatars" begin
+    rollback_after() do
+        png = hex2bytes("89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c4890000000d4944415478da6364f8cf500f00038601805a347d6b0000000049454e44ae426082")
+        ann = create_user("ann"; password = "correct-horse-battery", display_name = "ann lee")
+        @test ann.initial == "A"
+        c = Client()
+        force_login!(c, ann)
+        @test assert_contains(get(c, "/@ann/"), "avatar-initial")       # no avatar yet: the initial
+
+        r = post(c, "/accounts/profile/", Dict("display_name" => "Ann Lee", "bio" => "", "email" => "",
+                                               "avatar" => UploadedFile("me.png", png)))
+        @test assert_redirects(r, "/@ann/")
+        refresh!(ann)
+        @test startswith(ann.avatar.url, "/media/avatars/")
+        @test assert_contains(get(c, "/@ann/"), ann.avatar.url)
+    end
+end

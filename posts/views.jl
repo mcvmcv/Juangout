@@ -1,6 +1,6 @@
 # The form for writing a post: a ModelForm builds its fields from the model's.
-post_form(data = nothing; instance = nothing, label = "What's on your mind?") =
-    ModelForm(Post; data, instance, fields = [:body], labels = Dict(:body => label))
+post_form(data = nothing; files = nothing, instance = nothing, label = "What's on your mind?") =
+    ModelForm(Post; data, files, instance, fields = [:body, :image, :image_alt], labels = Dict(:body => label))
 
 # What a member's home timeline shows: posts by the people they follow, and their own.
 # Visitors who aren't logged in see everyone's.
@@ -39,10 +39,11 @@ const post_detail = DetailView(Post; template = "posts/detail.html",
 # an invalid POST shows the form again with its errors.
 function post_create(req; id = nothing)
     parent = id === nothing ? nothing : get_object_or_404(Post; id)
-    form = post_form(req.method == "POST" ? req.POST : nothing;
+    posting = req.method == "POST"
+    form = post_form(posting ? req.POST : nothing; files = posting ? req.FILES : nothing,
                      instance = Post(; author = req.user, reply_to = parent),
                      label = parent === nothing ? "What's on your mind?" : "Your reply")
-    if req.method == "POST" && is_valid(form)
+    if posting && is_valid(form)
         save!(form)
         message!(req, :success, parent === nothing ? "Posted." : "Replied.")
         return parent === nothing ? redirect("posts:timeline") : redirect(parent)

@@ -1,5 +1,5 @@
 {# The form for a new post, or for a reply when `reply_to` is set. #}
-<form method="post" class="form compose"
+<form method="post" class="form compose" enctype="multipart/form-data"
       action="{% if reply_to %}{% url 'posts:reply' reply_to.id %}{% else %}{% url 'posts:create' %}{% endif %}">
   {% csrf_token %}
   {{ form.as_div }}

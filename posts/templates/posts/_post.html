@@ -1,5 +1,6 @@
 <article class="post">
   <header>
+    <a class="avatar-link" href="{{ post.author.get_absolute_url }}">{% include "accounts/_avatar.html" with member=post.author size=36 %}</a>
     <a class="author" href="{{ post.author.get_absolute_url }}">{{ post.author.name }}</a>
     <span class="handle">@{{ post.author.username }}</span> ·
     <a class="when" href="{{ post.get_absolute_url }}" title="{{ post.created|date:'j M Y, H:i' }}">{{ post.created|timesince }} ago</a>
@@ -9,6 +10,12 @@
     {% endif %}
   </header>
   <p class="body">{{ post.body|linebreaksbr }}</p>
+  {% if post.image %}
+    <a href="{{ post.image.url }}" class="post-image">
+      <img src="{{ post.image.url }}" alt="{{ post.image_alt }}"
+           width="{{ post.image_width }}" height="{{ post.image_height }}" loading="lazy">
+    </a>
+  {% endif %}
   <footer>
     <a class="replies-link" href="{{ post.get_absolute_url }}" title="Replies">💬 {{ post.reply_count }}</a>
     {% if user.is_authenticated %}

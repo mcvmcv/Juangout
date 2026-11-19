@@ -1,0 +1,6 @@
+{# A member's avatar, or a circle with their initial. `member` and `size` (pixels) are given. #}
+{% if member.avatar %}
+  <img class="avatar" src="{{ member.avatar.url }}" alt="" width="{{ size }}" height="{{ size }}" loading="lazy">
+{% else %}
+  <span class="avatar avatar-initial" style="width: {{ size }}px; height: {{ size }}px; font-size: calc({{ size }}px * .45)" aria-hidden="true">{{ member.initial }}</span>
+{% endif %}
