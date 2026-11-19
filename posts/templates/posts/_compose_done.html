@@ -1,0 +1,6 @@
+{# After posting with htmx: a fresh form replaces the submitted one, and the new post is added #}
+{# to the list it belongs in, with an out-of-band swap (a second target in the same response). #}
+{% include "posts/_compose_form.html" %}
+<div hx-swap-oob="{% if reply_to %}beforeend:#replies{% else %}afterbegin:#post-list{% endif %}">
+  {% include "posts/_post.html" %}
+</div>

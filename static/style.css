@@ -134,3 +134,7 @@ button.secondary { background: var(--card); color: var(--ink); border: 1px solid
 .post-image img { max-width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--line); }
 .profile .avatar { margin-bottom: .5rem; }
 .form input[type=file] { font: inherit; }
+
+/* htmx */
+.load-more { text-align: center; padding: 1rem; color: var(--muted); }
+.htmx-request button { opacity: .6; cursor: progress; }

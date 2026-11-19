@@ -19,15 +19,23 @@
     </nav>
   {% endif %}
 
-  {% for post in post_list %}
-    {% include "posts/_post.html" %}
-  {% empty %}
-    {% if tab == "feed" and user.is_authenticated %}
-      <p class="empty">Nothing here yet. Follow some people from <a href="{% url 'posts:everyone' %}">Everyone</a>, or write the first post.</p>
-    {% else %}
-      <p class="empty">Nothing to read yet.</p>
-    {% endif %}
-  {% endfor %}
-
-  {% include "_pagination.html" %}
+  <div id="post-list">
+    {% partialdef page inline %}
+      {% for post in post_list %}
+        {% include "posts/_post.html" %}
+      {% empty %}
+        {% if tab == "feed" and user.is_authenticated %}
+          <p class="empty">Nothing here yet. Follow some people from <a href="{% url 'posts:everyone' %}">Everyone</a>, or write the first post.</p>
+        {% else %}
+          <p class="empty">Nothing to read yet.</p>
+        {% endif %}
+      {% endfor %}
+      {% if page_obj.has_next %}
+        {# replaced by the next page when it scrolls into view; a plain link without JavaScript #}
+        <div class="load-more" hx-get="?page={{ page_obj.next_page_number }}" hx-trigger="revealed" hx-swap="outerHTML">
+          <a href="?page={{ page_obj.next_page_number }}">Older posts</a>
+        </div>
+      {% endif %}
+    {% endpartialdef %}
+  </div>
 {% endblock %}

@@ -200,3 +200,21 @@ end
         @test assert_contains(get(c, "/@ann/"), ann.avatar.url)
     end
 end
+
+@testset "htmx: following" begin
+    rollback_after() do
+        ann = create_user("ann"; password = "correct-horse-battery")
+        bob = create_user("bob"; password = "correct-horse-battery")
+        c = Client()
+        force_login!(c, ann)
+        r = post(c, "/@bob/follow/"; htmx = true)
+        @test r.status == 200
+        @test assert_not_contains(r, "<html")
+        @test assert_contains(r, "id=\"follow-box\"")
+        @test assert_contains(r, "Unfollow")
+        @test assert_contains(r, "<strong>1</strong> follower")
+        @test assert_contains(r, "You&#x27;re following bob.")   # the message, out of band
+        r = post(c, "/@bob/unfollow/"; htmx = true)
+        @test assert_contains(r, "<strong>0</strong> followers")
+    end
+end

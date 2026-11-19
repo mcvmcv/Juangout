@@ -65,7 +65,7 @@ julia> 1 + 1
 5. [Follows and likes](05-follows-and-likes.md): many-to-many relations, annotations and aggregation
 6. [Replies and threads](06-replies-and-threads.md): self-referencing relations and query performance
 7. [Pictures](07-pictures.md): file uploads
-8. htmx: interactive pages without writing JavaScript
+8. [htmx](08-htmx.md): interactive pages without writing JavaScript
 9. Notifications: signals, email and background tasks
 10. Live updates: a timeline that updates itself
 11. Search: filtering and full-text search

@@ -18,7 +18,7 @@
   {% endif %}
 
   <h2 class="section-title">{{ post.reply_count }} repl{{ post.reply_count|pluralize:"y,ies" }}</h2>
-  <div class="replies">
+  <div class="replies" id="replies">
     {% for reply in replies %}
       {% include "posts/_post.html" with post=reply %}
     {% empty %}

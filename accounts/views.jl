@@ -1,16 +1,26 @@
-function profile(req; username)
-    member = get_object_or_404(Member; username, is_active = true)
+# What the profile page, and its follow box, need to know.
+function profile_context(req, member)
     me = req.user
-    render(req, "accounts/profile.html", Dict(
+    Dict(
         "member" => member,
-        "posts" => for_display(member.posts, me)[1:20],
         "follower_count" => count(member.followers),
         "following_count" => count(member.following),
         "is_me" => is_authenticated(me) && me.id == member.id,
         "i_follow" => is_authenticated(me) && member in me.following,
         "follows_me" => is_authenticated(me) && me in member.following,
-    ))
+    )
 end
+
+function profile(req; username)
+    member = get_object_or_404(Member; username, is_active = true)
+    ctx = profile_context(req, member)
+    ctx["posts"] = for_display(member.posts, req.user)[1:20]
+    render(req, "accounts/profile.html", ctx)
+end
+
+# After following or unfollowing: the follow box for htmx, or the whole profile page.
+after_follow(req, member) =
+    is_htmx(req) ? render(req, "accounts/profile.html#follow_box", profile_context(req, member)) : redirect(member)
 
 # Follow and unfollow: POSTs from the button on a profile.
 function follow(req; username)
@@ -21,14 +31,14 @@ function follow(req; username)
         add!(req.user.following, member)
         message!(req, :success, "You're following $(member.name).")
     end
-    redirect(member)
+    after_follow(req, member)
 end
 
 function unfollow(req; username)
     member = get_object_or_404(Member; username, is_active = true)
     remove!(req.user.following, member)
     message!(req, :success, "You've unfollowed $(member.name).")
-    redirect(member)
+    after_follow(req, member)
 end
 
 # Who follows a member, and whom they follow: one ListView, two querysets.

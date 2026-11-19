@@ -9,21 +9,23 @@
     <p class="handle">@{{ member.username }}{% if follows_me %} <span class="badge">follows you</span>{% endif %}
        · joined {{ member.date_joined|date:"F Y" }}</p>
     {% if member.bio %}<p class="bio">{{ member.bio|linebreaksbr }}</p>{% endif %}
-    <p class="counts">
-      <a href="{% url 'accounts:followers' member.username %}"><strong>{{ follower_count }}</strong> follower{{ follower_count|pluralize }}</a>
-      <a href="{% url 'accounts:following' member.username %}"><strong>{{ following_count }}</strong> following</a>
-    </p>
-    {% if user.is_authenticated and not is_me %}
-      {% if i_follow %}
-        <form method="post" action="{% url 'accounts:unfollow' member.username %}">
-          {% csrf_token %}<button type="submit" class="secondary">Unfollow</button>
-        </form>
-      {% else %}
-        <form method="post" action="{% url 'accounts:follow' member.username %}">
-          {% csrf_token %}<button type="submit">Follow</button>
+    {% partialdef follow_box inline %}
+    <div id="follow-box">
+      <p class="counts">
+        <a href="{% url 'accounts:followers' member.username %}"><strong>{{ follower_count }}</strong> follower{{ follower_count|pluralize }}</a>
+        <a href="{% url 'accounts:following' member.username %}"><strong>{{ following_count }}</strong> following</a>
+      </p>
+      {% if user.is_authenticated and not is_me %}
+        <form method="post" hx-target="#follow-box" hx-swap="outerHTML"
+              {% if i_follow %}action="{% url 'accounts:unfollow' member.username %}" hx-post="{% url 'accounts:unfollow' member.username %}"
+              {% else %}action="{% url 'accounts:follow' member.username %}" hx-post="{% url 'accounts:follow' member.username %}"{% endif %}>
+          {% csrf_token %}
+          {% if i_follow %}<button type="submit" class="secondary">Unfollow</button>
+          {% else %}<button type="submit">Follow</button>{% endif %}
         </form>
       {% endif %}
-    {% endif %}
+    </div>
+    {% endpartialdef %}
   </section>
 
   <h2 class="section-title">Posts</h2>

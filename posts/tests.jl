@@ -47,7 +47,7 @@ end
         r = get(c, "/")
         @test length(r.context["post_list"]) == 20
         @test r.context["is_paginated"]
-        @test assert_contains(r, "Older →")
+        @test assert_contains(r, "Older posts")
 
         r = get(c, "/?page=2")
         @test length(r.context["post_list"]) == 5
@@ -294,5 +294,57 @@ const TINY_PNG = hex2bytes("89504e470d0a1a0a0000000d4948445200000001000000010806
         # posts without pictures still work, and have no <img> for one
         r = post(c, "/posts/new/", Dict("body" => "Just words"); follow = true)
         @test assert_not_contains(r, "post-image\"><img"; html = false)
+    end
+end
+
+@testset "htmx: likes, posting and infinite scroll" begin
+    rollback_after() do
+        ann = create_user("ann"; password = "correct-horse-battery")
+        p = create(Post; author = ann, body = "Hello")
+        c = Client()
+        force_login!(c, ann)
+
+        # the page loads htmx and has somewhere for messages to go
+        r = get(c, "/")
+        @test assert_contains(r, "htmx.min.js")
+        @test assert_contains(r, "id=\"messages\"")
+
+        # liking with htmx returns just the button, with the new count
+        r = post(c, "/posts/$(p.id)/like/"; htmx = true)
+        @test r.status == 200
+        @test assert_not_contains(r, "<html")
+        @test assert_contains(r, "aria-pressed=\"true\"")
+        @test assert_contains(r, "♥ 1")
+        @test ann in p.likers
+
+        # posting with htmx returns a fresh form and the new post, swapped in out of band
+        r = post(c, "/posts/new/", Dict("body" => "Posted without a reload"); htmx = true)
+        @test r.status == 200
+        @test assert_contains(r, "hx-swap-oob=\"afterbegin:#post-list\"")
+        @test assert_contains(r, "Posted without a reload")
+        @test assert_contains(r, "Posted.")                  # the message, out of band too
+        @test count(objects(Post)) == 2
+
+        # replying adds the reply to the end of the thread
+        r = post(c, "/posts/$(p.id)/reply/", Dict("body" => "A reply"); htmx = true)
+        @test assert_contains(r, "hx-swap-oob=\"beforeend:#replies\"")
+
+        # an invalid post comes back as the form with its errors, status 422
+        r = post(c, "/posts/new/", Dict("body" => ""); htmx = true)
+        @test r.status == 422
+        @test haskey(r.context["form"].errors, :body)
+        @test assert_not_contains(r, "<html"; status = 422)
+
+        # infinite scroll: htmx asks for the next page and gets just its posts
+        for i in 1:25
+            create(Post; author = ann, body = "filler $i")
+        end
+        r = get(c, "/")
+        @test assert_contains(r, "hx-get=\"?page=2\"")
+        r = get(c, "/?page=2"; htmx = true)
+        @test assert_not_contains(r, "<html")
+        @test assert_not_contains(r, "id=\"post-list\"")     # the posts only, not their container
+        @test length(r.context["post_list"]) == 7
+        @test assert_not_contains(r, "hx-get=\"?page=3\"")   # the last page
     end
 end

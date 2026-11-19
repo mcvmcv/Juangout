@@ -14,12 +14,17 @@ top_level(posts) = filter(posts; reply_to__isnull = true)
 
 # Generic views: configured, not written. ListView fetches a page of rows and renders a
 # template with them; DetailView fetches one row by the id in the URL.
+# The whole page normally; for htmx's "load the next page" requests, just the posts.
+timeline_template(v) = is_htmx(v.request; boosted = false) ? ["posts/timeline.html#page"] : ["posts/timeline.html"]
+
 const timeline = ListView(Post; template = "posts/timeline.html", paginate_by = 20,
     get_queryset = v -> for_display(top_level(feed(v.request.user)), v.request.user),
+    get_template_names = timeline_template,
     get_context_data = (v, ctx) -> (ctx["form"] = post_form(); ctx["tab"] = "feed"; ctx))
 
 const everyone = ListView(Post; template = "posts/timeline.html", paginate_by = 20,
     get_queryset = v -> for_display(top_level(objects(Post)), v.request.user),
+    get_template_names = timeline_template,
     get_context_data = (v, ctx) -> (ctx["form"] = post_form(); ctx["tab"] = "everyone"; ctx))
 
 # A post's page: the post it replies to (if any), the post, a reply form, and the replies,
@@ -44,9 +49,18 @@ function post_create(req; id = nothing)
                      instance = Post(; author = req.user, reply_to = parent),
                      label = parent === nothing ? "What's on your mind?" : "Your reply")
     if posting && is_valid(form)
-        save!(form)
+        post = save!(form)
         message!(req, :success, parent === nothing ? "Posted." : "Replied.")
+        if is_htmx(req)
+            # an empty form in place of the one submitted, and the new post added to the page
+            return render(req, "posts/_compose_done.html", Dict("form" => post_form(), "reply_to" => parent,
+                          "post" => first(for_display(filter(Post; id = post.id), req.user))))
+        end
         return parent === nothing ? redirect("posts:timeline") : redirect(parent)
+    end
+    if is_htmx(req)       # the form again, with its errors, in place (422: "not accepted")
+        return render(req, "posts/_compose_form.html", Dict("form" => form, "reply_to" => parent);
+                      status = form_status(form))
     end
     render(req, "posts/compose.html", Dict("form" => form, "parent" => parent))
 end
@@ -67,6 +81,10 @@ function like(req; id)
         remove!(post.likers, req.user)
     else
         add!(post.likers, req.user)
+    end
+    if is_htmx(req)       # just the button, with its new count, for htmx to swap in
+        post = first(for_display(filter(Post; id), req.user))
+        return render(req, "posts/_post.html#like_button", Dict("post" => post))
     end
     redirect_back(req, get_absolute_url(post))
 end

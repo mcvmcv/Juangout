@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Juangout{% endblock %}</title>
   <link rel="stylesheet" href="{% static 'style.css' %}">
+  {% htmx_script %}
 </head>
 <body>
   <header class="site-header">
@@ -25,7 +26,9 @@
     </nav>
   </header>
   <main>
-    {% for message in messages %}<p class="msg {{ message.tags }}">{{ message }}</p>{% endfor %}
+    <div id="messages">
+      {% for message in messages %}<p class="msg {{ message.tags }}">{{ message }}</p>{% endfor %}
+    </div>
     {% block content %}{% endblock %}
   </main>
   <footer class="site-footer">Made with Juango</footer>
