@@ -16,7 +16,15 @@ configure!(
     # DATABASE_URL=postgresql://user:password@localhost:5432/Juangout (or mysql://, sqlite:////path)
     DATABASE = env_db(; default = "sqlite:///" * joinpath(BASE_DIR, "db.sqlite3")),
     INSTALLED_APPS = ["juango.admin", "juango.auth", "juango.contenttypes", "juango.sessions", "juango.messages",
-                      Accounts.APP, Posts.APP],
+                      Accounts.APP, Posts.APP, Notifications.APP],
+    # values every template gets: Juango's own (user, messages, ...) and the unread count
+    CONTEXT_PROCESSORS = [Juango.default_settings()[:CONTEXT_PROCESSORS]..., unread_notifications],
+    # email: printed to the terminal in development, sent through a mail server in production
+    EMAIL_BACKEND = debug ? :console : :smtp,
+    DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL"; default = "Juangout <noreply@juangout.example>"),
+    SITE_URL = env("SITE_URL"; default = "http://127.0.0.1:8000"),     # for links in emails
+    # each view runs in a database transaction: its changes are saved together, or not at all
+    ATOMIC_REQUESTS = true,
     AUTH_USER_MODEL = "accounts.Member",
     MIGRATIONS_DIR = joinpath(BASE_DIR, "migrations"),
     ROOT_URLCONF = urlpatterns,

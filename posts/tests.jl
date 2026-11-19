@@ -6,6 +6,7 @@ using Juango.Testing
         ann = create_user("ann"; password = "correct-horse-battery", display_name = "Ann Lee")
         bob = create_user("bob"; password = "correct-horse-battery")
         first_post = create(Post; author = ann, body = "Hello, Juangout!")
+        first_post.created = timezone_now() - Minute(5); save!(first_post)    # so the order is certain
         create(Post; author = bob, body = "Bob was here")
 
         # the ORM

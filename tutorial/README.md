@@ -66,7 +66,7 @@ julia> 1 + 1
 6. [Replies and threads](06-replies-and-threads.md): self-referencing relations and query performance
 7. [Pictures](07-pictures.md): file uploads
 8. [htmx](08-htmx.md): interactive pages without writing JavaScript
-9. Notifications: signals, email and background tasks
+9. [Notifications](09-notifications.md): signals, email and background tasks
 10. Live updates: a timeline that updates itself
 11. Search: filtering and full-text search
 12. Moderation: permissions and groups

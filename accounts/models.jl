@@ -6,6 +6,7 @@
     bio = TextField(max_length = 300, blank = true)
     avatar = ImageField(upload_to = "avatars/", blank = true,
                         validators = [MaxFileSizeValidator(2_000_000)], help_text = "A square picture works best. At most 2 MB.")
+    email_notifications = BooleanField(default = true, verbose_name = "Email me about new followers and replies")
     # who this member follows: a one-way relation from members to members, stored as Follow rows
     following = ManyToManyField(:self; symmetrical = false, through = :Follow,
                                 through_fields = (:follower, :followed), related_name = :followers, blank = true)

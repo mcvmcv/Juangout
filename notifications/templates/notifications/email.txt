@@ -1,0 +1,12 @@
+{% autoescape off %}Hi {{ n.recipient.name }},
+
+{{ n.actor.name }} (@{{ n.actor.username }}) {{ n.get_verb_display }} on Juangout.
+{% if n.post %}
+  "{{ n.post.body|truncatechars:200 }}"
+
+See it at {{ site_url }}{{ n.post.get_absolute_url }}
+{% else %}
+See their profile at {{ site_url }}{{ n.actor.get_absolute_url }}
+{% endif %}
+You can turn these emails off on your profile page: {{ site_url }}{% url 'accounts:profile_edit' %}
+{% endautoescape %}

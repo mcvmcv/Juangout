@@ -138,3 +138,12 @@ button.secondary { background: var(--card); color: var(--ink); border: 1px solid
 /* htmx */
 .load-more { text-align: center; padding: 1rem; color: var(--muted); }
 .htmx-request button { opacity: .6; cursor: progress; }
+
+/* notifications */
+.count-badge { display: inline-block; min-width: 1.3em; padding: 0 .35em; border-radius: 999px; background: var(--accent); color: #fff; font-size: .75rem; font-weight: 700; text-align: center; }
+.notifications { list-style: none; padding: 0; }
+.notifications li { padding: .7rem .5rem; border-bottom: 1px solid var(--line); }
+.notifications li.unread { background: var(--accent-soft); }
+.notifications .when { color: var(--muted); font-size: .85rem; }
+.notifications .excerpt { color: var(--muted); margin: .2rem 0 0 36px; }
+.form input[type=checkbox] { margin-right: .4rem; }

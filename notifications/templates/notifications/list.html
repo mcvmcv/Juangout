@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications · Juangout{% endblock %}
+
+{% block content %}
+  <h1>Notifications</h1>
+  <ul class="notifications">
+    {% for n in notifications %}
+      <li class="{% if not n.read %}unread{% endif %}">
+        {% include "accounts/_avatar.html" with member=n.actor size=28 %}
+        <a class="author" href="{{ n.actor.get_absolute_url }}">{{ n.actor.name }}</a>
+        {% if n.post %}<a href="{{ n.post.get_absolute_url }}">{{ n.get_verb_display }}</a>{% else %}{{ n.get_verb_display }}{% endif %}
+        <span class="when">{{ n.created|timesince }} ago</span>
+        {% if n.post %}<div class="excerpt">{{ n.post.body|truncatechars:80 }}</div>{% endif %}
+      </li>
+    {% empty %}
+      <li class="empty">Nothing yet. When people follow you, or like or reply to your posts, you'll hear about it here.</li>
+    {% endfor %}
+  </ul>
+  {% include "_pagination.html" %}
+{% endblock %}

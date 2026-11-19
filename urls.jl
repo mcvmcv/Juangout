@@ -4,4 +4,5 @@ const urlpatterns = [
     path("accounts/", Juango.auth_urls()),            # login/, logout/, password_change/, ...
     path("", include_urls(Accounts.APP)),            # /@username/
     path("", include_urls(Posts.APP)),               # the timeline at /, posts at /posts/<id>/
+    path("", include_urls(Notifications.APP)),       # /notifications/
 ]

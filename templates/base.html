@@ -14,6 +14,7 @@
       <a href="{% url 'posts:timeline' %}">Home</a>
       <a href="{% url 'about' %}">About</a>
       {% if user.is_authenticated %}
+        <a href="{% url 'notifications:list' %}">Notifications{% if unread_count %} <span class="count-badge" aria-label="{{ unread_count }} unread">{{ unread_count }}</span>{% endif %}</a>
         <a href="{{ user.get_absolute_url }}">@{{ user.username }}</a>
         <a href="{% url 'accounts:profile_edit' %}">Edit profile</a>
         <form method="post" action="{% url 'logout' %}" class="inline">
