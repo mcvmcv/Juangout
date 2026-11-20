@@ -18,6 +18,7 @@
         <a href="{% url 'notifications:list' %}">Notifications{% if unread_count %} <span class="count-badge" aria-label="{{ unread_count }} unread">{{ unread_count }}</span>{% endif %}</a>
         <a href="{{ user.get_absolute_url }}">@{{ user.username }}</a>
         <a href="{% url 'accounts:profile_edit' %}">Edit profile</a>
+        {% if perms.posts.hide_post %}<a href="{% url 'moderation:queue' %}">Moderation</a>{% endif %}
         <form method="post" action="{% url 'logout' %}" class="inline">
           {% csrf_token %}<button type="submit" class="link">Log out</button>
         </form>

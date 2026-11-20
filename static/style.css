@@ -161,3 +161,12 @@ button.secondary { background: var(--card); color: var(--ink); border: 1px solid
 .filters > div { margin: .5rem 0; }
 .filters label { display: inline-block; min-width: 7rem; font-weight: 400; }
 .filters input, .filters select { padding: .3rem .5rem; font: inherit; border: 1px solid var(--line); border-radius: 6px; background: var(--card); }
+
+/* moderation */
+.post .report { color: var(--muted); }
+.hidden-badge { background: #fdecec; color: #b42318; margin-left: .3rem; }
+.reported { border-bottom: 1px solid var(--line); padding-bottom: 1rem; margin-bottom: 1.25rem; }
+.report-count { font-weight: 700; margin: .25rem 0; }
+.reports { margin: 0 0 .75rem; padding-left: 1.2rem; color: var(--muted); }
+.reports .note { color: var(--ink); font-style: italic; }
+.decide button { margin-right: .5rem; }

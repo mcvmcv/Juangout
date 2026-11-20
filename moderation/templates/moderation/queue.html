@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Moderation · Juangout{% endblock %}
+
+{% block content %}
+  <h1>Moderation</h1>
+  {% for row in rows %}
+    <section class="reported">
+      {% include "posts/_post.html" with post=row.post %}
+      <p class="report-count">{{ row.post.report_count }} open report{{ row.post.report_count|pluralize }}</p>
+      <ul class="reports">
+        {% for r in row.reports %}
+          <li><strong>{{ r.get_reason_display }}</strong>, from @{{ r.reporter.username }} {{ r.created|timesince }} ago
+              {% if r.note %}<div class="note">{{ r.note }}</div>{% endif %}</li>
+        {% endfor %}
+      </ul>
+      <form method="post" action="{% url 'moderation:decide' row.post.id %}" class="decide">
+        {% csrf_token %}
+        <button type="submit" name="decision" value="hide" class="danger">Hide post</button>
+        <button type="submit" name="decision" value="dismiss" class="secondary">Dismiss reports</button>
+      </form>
+    </section>
+  {% empty %}
+    <p class="empty">Nothing to review. 🎉</p>
+  {% endfor %}
+  {% include "_pagination.html" %}
+{% endblock %}

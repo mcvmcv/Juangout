@@ -23,7 +23,10 @@ Juango.get_absolute_url(t::Tag) = reverse_url("posts:tag"; name = t.name)
     # the members who like this post, stored as Like rows
     likers = ManyToManyField(USER_MODEL; through = :Like, related_name = :liked_posts, blank = true)
     tags = ManyToManyField(Tag; related_name = :posts, blank = true)
-    Meta(ordering = ["-created"])
+    hidden = BooleanField(default = false, help_text = "Hidden by a moderator: shown to moderators only.")
+    Meta(ordering = ["-created"],
+         # a permission of our own, beside the add/change/delete/view ones every model gets
+         permissions = [("hide_post", "Can hide posts")])
 end
 
 Base.show(io::IO, p::Post) = print(io, length(p.body) > 50 ? first(p.body, 49) * "…" : p.body)
@@ -69,9 +72,11 @@ end
 
 The posts, ready for the `posts/_post.html` template: with `like_count`, `reply_count` and
 `liked` (whether `user` likes the post), each post's author (and the author of the post it
-replies to) fetched in the same query, newest first.
+replies to) fetched in the same query, newest first. Hidden posts only for moderators.
 """
 function for_display(posts, user)
+    # hidden posts are left out, except for moderators
+    has_perm(user, "posts.hide_post") || (posts = filter(posts; hidden = false))
     posts = annotate(posts;
         # two counts over two different relations: distinct, or each would multiply the other
         like_count = Count(:likers; distinct = true),

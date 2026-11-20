@@ -5,4 +5,5 @@ const urlpatterns = [
     path("", include_urls(Accounts.APP)),            # /@username/
     path("", include_urls(Posts.APP)),               # the timeline at /, posts at /posts/<id>/
     path("", include_urls(Notifications.APP)),       # /notifications/
+    path("", include_urls(Moderation.APP)),          # /moderation/, /posts/<id>/report/
 ]

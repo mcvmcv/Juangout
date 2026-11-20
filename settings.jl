@@ -16,7 +16,7 @@ configure!(
     # DATABASE_URL=postgresql://user:password@localhost:5432/Juangout (or mysql://, sqlite:////path)
     DATABASE = env_db(; default = "sqlite:///" * joinpath(BASE_DIR, "db.sqlite3")),
     INSTALLED_APPS = ["juango.admin", "juango.auth", "juango.contenttypes", "juango.sessions", "juango.messages",
-                      Accounts.APP, Posts.APP, Notifications.APP],
+                      Accounts.APP, Posts.APP, Notifications.APP, Moderation.APP],
     # values every template gets: Juango's own (user, messages, ...) and the unread count
     CONTEXT_PROCESSORS = [Juango.default_settings()[:CONTEXT_PROCESSORS]..., unread_notifications],
     # email: printed to the terminal in development, sent through a mail server in production
