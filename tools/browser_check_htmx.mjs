@@ -28,7 +28,8 @@ try {
   const ev = async x => { const r = await s("Runtime.evaluate", { expression: x, awaitPromise: true, returnByValue: true });
     if (r.exceptionDetails) throw new Error("evaluate: " + JSON.stringify(r.exceptionDetails)); return r.result.value; };
   const waitFor = async (x, ms = 8000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await ev(x)) return true; await sleep(50); } return false; };
-  const go = async url => { await s("Page.navigate", { url }); await sleep(300); await waitFor("document.readyState === 'complete'"); };
+  const go = async url => { await s("Page.navigate", { url });
+      await waitFor(`location.href.startsWith(${JSON.stringify(url)}) && document.readyState === 'complete'`, 20000); };
   await s("Page.enable"); await s("Runtime.enable");
   // log in
   await go(base + "/accounts/login/");
@@ -70,4 +71,4 @@ try {
   out.follow_toggled = await waitFor(`document.querySelector('#follow-box button')?.innerText !== ${JSON.stringify(fb)}`);
   out.follow_before_after = [fb, await ev("document.querySelector('#follow-box button').innerText")];
 } catch (e) { out.error = String(e); }
-finally { console.log(JSON.stringify(out, null, 1)); chrome.kill(); ws.close(); rmSync(profile, { recursive: true, force: true }); process.exit(0); }
+finally { console.log(JSON.stringify(out, null, 1)); chrome.kill(); ws.close(); setTimeout(() => { try { rmSync(profile, { recursive: true, force: true }); } catch {} process.exit(0); }, 500); }

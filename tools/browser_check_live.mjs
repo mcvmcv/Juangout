@@ -29,12 +29,17 @@ try {
     const ev = async x => { const r = await s("Runtime.evaluate", { expression: x, awaitPromise: true, returnByValue: true });
       if (r.exceptionDetails) throw new Error("evaluate: " + JSON.stringify(r.exceptionDetails)); return r.result.value; };
     const waitFor = async (x, ms = 8000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await ev(x)) return true; await sleep(50); } return false; };
-    const go = async url => { await s("Page.navigate", { url }); await sleep(300); await waitFor("document.readyState === 'complete'"); };
+    const go = async url => { await s("Page.navigate", { url });
+      await waitFor(`location.href.startsWith(${JSON.stringify(url)}) && document.readyState === 'complete'`, 20000); };
     await s("Page.enable"); await s("Runtime.enable");
     return { ev, waitFor, go };
   }
   const a = await page();
   await a.go(base + "/accounts/login/");
+  if (!(await a.ev("!!document.querySelector('#id_username')"))) {
+    out.login_page = await a.ev("location.href + ' :: ' + document.title + ' :: ' + document.body.innerText.slice(0, 300)");
+    throw new Error("no login form");
+  }
   await a.ev(`document.querySelector('#id_username').value='ann'; document.querySelector('#id_password').value='juangout-demo'; document.querySelector('form.form').submit(); true`);
   await a.waitFor("document.readyState === 'complete' && location.pathname !== '/accounts/login/'");
   out.logged_in = await a.ev("document.body.innerText.includes('Log out')");
@@ -63,4 +68,4 @@ try {
   out.like_live = await a.waitFor(`document.querySelector('.live-posts button.like').innerText !== ${JSON.stringify(before)}`);
   out.like_seen_in_b = await b.waitFor(`document.querySelector('.live-posts button.like').innerText !== ${JSON.stringify(before)}`);
 } catch (e) { out.error = String(e); }
-finally { console.log(JSON.stringify(out, null, 1)); chrome.kill(); ws.close(); rmSync(profile, { recursive: true, force: true }); process.exit(0); }
+finally { console.log(JSON.stringify(out, null, 1)); chrome.kill(); ws.close(); setTimeout(() => { try { rmSync(profile, { recursive: true, force: true }); } catch {} process.exit(0); }, 500); }

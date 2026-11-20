@@ -67,7 +67,7 @@ julia> 1 + 1
 7. [Pictures](07-pictures.md): file uploads
 8. [htmx](08-htmx.md): interactive pages without writing JavaScript
 9. [Notifications](09-notifications.md): signals, email and background tasks
-10. Live updates: a timeline that updates itself
+10. [Live updates](10-live-updates.md): a timeline that updates itself
 11. Search: filtering and full-text search
 12. Moderation: permissions and groups
 13. Polish: caching, humanize, time zones and translations

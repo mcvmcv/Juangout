@@ -370,7 +370,7 @@ end
 
 These tests check what the server sends. Checking that htmx then does the right thing with it
 in a real browser is a job for browser automation. Juango's `with_live_server` runs the app for
-tools like that, and chapter 10 uses it.
+tools like that, and chapter 10 says more about it.
 
 ## Summary
 
