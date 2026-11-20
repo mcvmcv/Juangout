@@ -9,7 +9,9 @@ using ..Accounts: Member
 export Notification, Verb, unread_notifications
 
 const APP = App("notifications"; mod = @__MODULE__, path = @__DIR__, urls = () -> urlpatterns,
-                ready = () -> connect_signals())     # run once, when the app is installed
+                ready = () -> connect_signals(),     # run once, when the app is installed
+                # a setting of the app's own, for links in emails; the project can override it
+                settings = Dict(:SITE_URL => "http://127.0.0.1:8000"))
 
 include("models.jl")
 include("tasks.jl")

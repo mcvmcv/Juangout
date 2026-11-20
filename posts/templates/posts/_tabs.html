@@ -1,0 +1,7 @@
+{% if user.is_authenticated %}
+  <nav class="tabs">
+    <a href="{% url 'posts:timeline' %}"{% if tab == "feed" %} aria-current="page"{% endif %}>Following</a>
+    <a href="{% url 'posts:everyone' %}"{% if tab == "everyone" %} aria-current="page"{% endif %}>Everyone</a>
+    <a href="{% url 'posts:live' %}"{% if tab == "live" %} aria-current="page"{% endif %}>Live</a>
+  </nav>
+{% endif %}

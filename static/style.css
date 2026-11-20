@@ -147,3 +147,7 @@ button.secondary { background: var(--card); color: var(--ink); border: 1px solid
 .notifications .when { color: var(--muted); font-size: .85rem; }
 .notifications .excerpt { color: var(--muted); margin: .2rem 0 0 36px; }
 .form input[type=checkbox] { margin-right: .4rem; }
+
+/* live */
+.chars-left { color: var(--muted); font-size: .85rem; margin: -.4rem 0 .6rem; }
+.chars-left.over { color: #b42318; font-weight: 600; }

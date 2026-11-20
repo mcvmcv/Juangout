@@ -1,6 +1,7 @@
 const urlpatterns = [
     path("", timeline; name = "timeline"),
     path("everyone/", everyone; name = "everyone"),
+    live("live/", LiveTimeline, "posts/live.html"; name = "live"),
     path("posts/new/", login_required(post_create); name = "create"),
     path("posts/<int:id>/", post_detail; name = "detail"),
     path("posts/<int:id>/reply/", login_required(post_create); name = "reply"),

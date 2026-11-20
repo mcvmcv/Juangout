@@ -66,7 +66,9 @@ using ..Accounts: Member
 export Notification, Verb, unread_notifications
 
 const APP = App("notifications"; mod = @__MODULE__, path = @__DIR__, urls = () -> urlpatterns,
-                ready = () -> connect_signals())     # run once, when the app is installed
+                ready = () -> connect_signals(),     # run once, when the app is installed
+                # a setting of the app's own, for links in emails; the project can override it
+                settings = Dict(:SITE_URL => "http://127.0.0.1:8000"))
 
 include("models.jl")
 include("tasks.jl")
@@ -270,7 +272,8 @@ right. In `settings.jl`:
 ```
 
 `DEFAULT_FROM_EMAIL` is used when `from` is `nothing`. `SITE_URL` isn't one of Juango's
-settings: any extra keyword becomes a setting of your own, read as
+settings: it's the notifications app's own, declared with a default by `settings = Dict(...)` in
+its `App(...)` (Juango warns about settings nobody declared, to catch typos), and read as
 `Juango.settings.SITE_URL`. Emails need full URLs, because they aren't read on your site.
 
 This also brings to life the "forgot your password?" pages from `auth_urls()`. Visit

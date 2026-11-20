@@ -349,3 +349,52 @@ end
         @test assert_not_contains(r, "hx-get=\"?page=3\"")   # the last page
     end
 end
+
+@testset "the live timeline" begin
+    rollback_after() do
+        ann = create_user("ann"; password = "correct-horse-battery")
+        bob = create_user("bob"; password = "correct-horse-battery")
+        create(Post; author = bob, body = "Already here")
+
+        # the page itself is ordinary HTML, with the live part marked for live.js
+        c = Client()
+        force_login!(c, ann)
+        r = get(c, "/live/")
+        @test r.status == 200
+        @test assert_contains(r, "data-j-live=\"/live/\"")
+        @test assert_contains(r, "live.js")
+        @test assert_contains(r, "Already here")
+
+        # live_test mounts the view without a browser; events and messages return the new HTML
+        lt = live_test(LiveTimeline, "posts/live.html"; user = ann, path = "/live/")
+        @test occursin("Already here", lt.html)
+
+        # typing: validated as you go, with a running count
+        html = live_event!(lt, "validate", Dict("body" => "x"^290, "_target" => "body"))
+        @test occursin("-10 characters left", html)
+        @test haskey(lt.view.form.form.errors, :body)
+
+        # posting over the socket saves the post (and the form starts again)
+        capture_on_commit_callbacks(; execute = true) do
+            live_event!(lt, "post", Dict("body" => "Hello, live!"))
+        end
+        @test count(filter(Post; author = ann, body = "Hello, live!")) == 1
+        @test lt.view.chars_left == 280
+
+        # someone else posts: the published message reaches the view, which shows it
+        capture_on_commit_callbacks(; execute = true) do
+            create(Post; author = bob, body = "Breaking news")
+        end
+        html = live_flush!(lt)
+        @test occursin("Breaking news", html)
+        @test occursin("Hello, live!", html)
+
+        # likes are live events too
+        p = get(Post; body = "Breaking news")
+        capture_on_commit_callbacks(; execute = true) do
+            live_event!(lt, "like", Dict("id" => string(p.id)))
+        end
+        @test ann in p.likers
+        @test occursin("j-click=\"like\"", live_flush!(lt))
+    end
+end

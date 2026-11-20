@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Live · Juangout{% endblock %}
+
+{% block content %}
+  {% include "posts/_tabs.html" with tab="live" %}
+  {% liveview %}
+    {% if user.is_authenticated %}
+      {# j-change validates as you type; j-submit sends the post over the WebSocket. #}
+      {# Without JavaScript, it's an ordinary form for post_create. #}
+      <form method="post" action="{% url 'posts:create' %}" enctype="multipart/form-data"
+            class="form compose" j-change="validate" j-submit="post">
+        {% csrf_token %}
+        {{ form.form.as_div }}
+        <p class="chars-left{% if chars_left < 0 %} over{% endif %}">{{ chars_left }} characters left</p>
+        <button type="submit">Post</button>
+      </form>
+    {% endif %}
+    <div class="live-posts">
+      {% for post in posts %}
+        {% include "posts/_post.html" with live=True %}
+      {% empty %}
+        <p class="empty">Nothing yet. Say something!</p>
+      {% endfor %}
+    </div>
+  {% endliveview %}
+{% endblock %}

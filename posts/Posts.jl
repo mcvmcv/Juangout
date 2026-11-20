@@ -4,14 +4,16 @@ module Posts
 using Juango
 using Dates
 
-export Post, Like, for_display
+export Post, Like, for_display, LiveTimeline
 
 const APP = App("posts"; mod = @__MODULE__, path = @__DIR__, urls = () -> urlpatterns,
-                commands = Dict("seed" => ("Create demo members and posts", args -> seed(args))))
+                commands = Dict("seed" => ("Create demo members and posts", args -> seed(args))),
+                ready = () -> connect_live_signals())
 
 include("models.jl")
 include("admin.jl")
 include("views.jl")
+include("live.jl")
 include("urls.jl")
 include("commands.jl")
 

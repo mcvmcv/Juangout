@@ -12,12 +12,7 @@
     {% endif %}
   {% endif %}
 
-  {% if user.is_authenticated %}
-    <nav class="tabs">
-      <a href="{% url 'posts:timeline' %}"{% if tab == "feed" %} aria-current="page"{% endif %}>Following</a>
-      <a href="{% url 'posts:everyone' %}"{% if tab == "everyone" %} aria-current="page"{% endif %}>Everyone</a>
-    </nav>
-  {% endif %}
+  {% include "posts/_tabs.html" %}
 
   <div id="post-list">
     {% partialdef page inline %}

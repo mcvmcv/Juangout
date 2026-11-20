@@ -18,7 +18,12 @@
   {% endif %}
   <footer>
     <a class="replies-link" href="{{ post.get_absolute_url }}" title="Replies">💬 {{ post.reply_count }}</a>
-    {% if user.is_authenticated %}
+    {% if live and user.is_authenticated %}
+      {# on the live page, a live view event instead of a form #}
+      <button type="button" class="like{% if post.liked %} liked{% endif %}" j-click="like" j-value-id="{{ post.id }}"
+              aria-pressed="{% if post.liked %}true{% else %}false{% endif %}"
+              title="{% if post.liked %}Unlike{% else %}Like{% endif %}">♥ {{ post.like_count }}</button>
+    {% elif user.is_authenticated %}
       {% partialdef like_button inline %}
       <form method="post" action="{% url 'posts:like' post.id %}" class="like-form"
             hx-post="{% url 'posts:like' post.id %}" hx-target="this" hx-swap="outerHTML">
