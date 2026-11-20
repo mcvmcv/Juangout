@@ -218,3 +218,43 @@ end
         @test assert_contains(r, "<strong>0</strong> followers")
     end
 end
+
+@testset "time zones and humanize" begin
+    rollback_after() do
+        ann = create_user("ann"; password = "correct-horse-battery")
+        p = create(Post; author = ann, body = "New year!")
+        p.created = make_aware(DateTime(2026, 1, 1, 12, 0)); save!(p)          # noon, UTC (TIME_ZONE)
+
+        # visitors see UTC; a member in Auckland (UTC+13 in January) sees their own time
+        @test assert_contains(get(Client(), "/posts/$(p.id)/"), "1 Jan 2026, 12:00")
+        ann.time_zone = "Pacific/Auckland"; save!(ann)
+        c = Client()
+        force_login!(c, ann)
+        @test assert_contains(get(c, "/posts/$(p.id)/"), "2 Jan 2026, 01:00")
+
+        # naturaltime: "5 minutes ago" rather than a date
+        recent = create(Post; author = ann, body = "Just now-ish")
+        recent.created = timezone_now() - Minute(5); save!(recent)
+        @test assert_contains(get(c, "/posts/$(recent.id)/"), "5 minutes ago")
+    end
+end
+
+@testset "translations" begin
+    rollback_after() do
+        ann = create_user("ann"; password = "correct-horse-battery")
+        # the browser's preferred language
+        r = get(Client(), "/"; headers = Dict("Accept-Language" => "de"))
+        @test assert_contains(r, "Willkommen bei Juangout")
+        @test assert_contains(r, "<html lang=\"de\">"; html = false)
+        @test assert_contains(get(Client(), "/"), "Welcome to Juangout")
+
+        # the switcher remembers a choice, and goes back where it came from
+        c = Client()
+        force_login!(c, ann)
+        r = post(c, "/i18n/setlang/", Dict("language" => "de", "next" => "/everyone/"))
+        @test assert_redirects(r, "/everyone/")
+        r = get(c, "/everyone/")
+        @test assert_contains(r, "Mitteilungen")
+        @test assert_contains(r, ">Alle</a>")
+    end
+end

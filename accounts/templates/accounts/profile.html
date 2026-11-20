@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load humanize %}
 
 {% block title %}{{ member.name }} (@{{ member.username }}) · Juangout{% endblock %}
 
@@ -12,8 +13,8 @@
     {% partialdef follow_box inline %}
     <div id="follow-box">
       <p class="counts">
-        <a href="{% url 'accounts:followers' member.username %}"><strong>{{ follower_count }}</strong> follower{{ follower_count|pluralize }}</a>
-        <a href="{% url 'accounts:following' member.username %}"><strong>{{ following_count }}</strong> following</a>
+        <a href="{% url 'accounts:followers' member.username %}"><strong>{{ follower_count|intcomma }}</strong> follower{{ follower_count|pluralize }}</a>
+        <a href="{% url 'accounts:following' member.username %}"><strong>{{ following_count|intcomma }}</strong> following</a>
       </p>
       {% if user.is_authenticated and not is_me %}
         <form method="post" hx-target="#follow-box" hx-swap="outerHTML"

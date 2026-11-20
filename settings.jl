@@ -8,8 +8,12 @@ debug = env("DEBUG", Bool; default = true)
 configure!(
     DEBUG = debug,
     # in development, a panel on every page with its SQL queries, templates and timings
-    MIDDLEWARE = debug ? [DebugToolbarMiddleware, Juango.default_settings()[:MIDDLEWARE]...] :
-                         Juango.default_settings()[:MIDDLEWARE],
+    # Every request passes through these in order (and the response back out in reverse).
+    # The debug toolbar first, in development; LocaleMiddleware after sessions, which it reads;
+    # members' time zones after authentication, which tells us who the member is.
+    MIDDLEWARE = [(debug ? [DebugToolbarMiddleware] : [])..., Juango.SecurityMiddleware, Juango.SessionMiddleware,
+                  LocaleMiddleware, Juango.CommonMiddleware, Juango.CsrfViewMiddleware, Juango.AuthenticationMiddleware,
+                  MemberTimezoneMiddleware, HtmxMiddleware],
     INTERNAL_IPS = ["127.0.0.1", "::1"],
     SECRET_KEY = env("SECRET_KEY"; default = "TDD7oiWM28hi1EgFjGvJ2RemZXSOFDPDgSxRbntMUYjVFhzunc"),
     ALLOWED_HOSTS = env("ALLOWED_HOSTS", Vector{String}; default = ["localhost", "127.0.0.1"]),
@@ -32,6 +36,10 @@ configure!(
     STATIC_DIRS = [joinpath(BASE_DIR, "static")],
     MEDIA_ROOT = joinpath(BASE_DIR, "media"),     # uploaded files (FileField/ImageField)
     USE_TZ = true,                                # aware datetimes, stored in UTC
+    # languages: English, and a German translation in locale/de
+    LANGUAGE_CODE = "en",
+    LANGUAGES = [("en", "English"), ("de", "Deutsch")],
+    LOCALE_PATHS = [joinpath(BASE_DIR, "locale")],
     TIME_ZONE = "UTC",
     SITE_NAME = "Juangout",
 )

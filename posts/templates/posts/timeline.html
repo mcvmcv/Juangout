@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block content %}
   {% if page_obj.number == 1 %}
@@ -6,8 +7,8 @@
       {% include "posts/_compose_form.html" %}
     {% else %}
       <section class="hero">
-        <h1>Welcome to Juangout</h1>
-        <p>Say what's on your mind. Briefly. <a href="{% url 'accounts:signup' %}">Sign up</a> or <a href="{% url 'login' %}">log in</a>.</p>
+        <h1>{% translate "Welcome to Juangout" %}</h1>
+        <p>{% translate "Say what's on your mind. Briefly." %} <a href="{% url 'accounts:signup' %}">{% translate "Sign up" %}</a> {% translate "or" %} <a href="{% url 'login' %}">{% translate "log in" %}</a>.</p>
       </section>
     {% endif %}
   {% endif %}
@@ -22,13 +23,13 @@
         {% if tab == "feed" and user.is_authenticated %}
           <p class="empty">Nothing here yet. Follow some people from <a href="{% url 'posts:everyone' %}">Everyone</a>, or write the first post.</p>
         {% else %}
-          <p class="empty">Nothing to read yet.</p>
+          <p class="empty">{% translate "Nothing to read yet." %}</p>
         {% endif %}
       {% endfor %}
       {% if page_obj.has_next %}
         {# replaced by the next page when it scrolls into view; a plain link without JavaScript #}
         <div class="load-more" hx-get="?page={{ page_obj.next_page_number }}" hx-trigger="revealed" hx-swap="outerHTML">
-          <a href="?page={{ page_obj.next_page_number }}">Older posts</a>
+          <a href="?page={{ page_obj.next_page_number }}">{% translate "Older posts" %}</a>
         </div>
       {% endif %}
     {% endpartialdef %}

@@ -70,6 +70,6 @@ julia> 1 + 1
 10. [Live updates](10-live-updates.md): a timeline that updates itself
 11. [Search](11-search.md): filtering and full-text search
 12. [Moderation](12-moderation.md): permissions and groups
-13. Polish: caching, humanize, time zones and translations
+13. [Polish](13-polish.md): caching, humanize, time zones and translations
 14. API and feeds: a JSON API and RSS/Atom feeds
 15. Deployment

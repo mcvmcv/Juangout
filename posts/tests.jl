@@ -469,3 +469,34 @@ end
         @test occursin("q=garden", link[1]) && occursin("author=bob", link[1])
     end
 end
+
+@testset "trending, cached" begin
+    rollback_after() do
+        cache_clear()                                     # start without anything cached
+        ann = create_user("ann"; password = "correct-horse-battery")
+        bob = create_user("bob"; password = "correct-horse-battery")
+        cat = create_user("cat"; password = "correct-horse-battery")
+        quiet = create(Post; author = ann, body = "Quiet #julia")
+        popular = create(Post; author = ann, body = "Popular #julia #garden")
+        add!(popular.likers, bob, cat)
+        add!(quiet.likers, bob)
+
+        @test Posts.trending_post_ids() == [popular.id, quiet.id]
+        @test first(Posts.trending_tags()) == (name = "julia", uses = 2)
+
+        # cached: a new like doesn't change the answer until the cache entry expires...
+        add!(quiet.likers, ann, cat)
+        @test Posts.trending_post_ids() == [popular.id, quiet.id]
+        # ...or is deleted
+        cache_delete("trending:posts")
+        @test Posts.trending_post_ids() == [quiet.id, popular.id]
+
+        r = get(Client(), "/trending/")
+        @test [p.body for p in r.context["posts"]] == ["Quiet #julia", "Popular #julia #garden"]
+        @test assert_contains(r, "#garden")
+        # likes older than a day don't count
+        update!(objects(Like); created = timezone_now() - Day(2))
+        cache_clear()
+        @test isempty(Posts.trending_post_ids())
+    end
+end

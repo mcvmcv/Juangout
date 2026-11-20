@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load humanize %}
 
 {% block title %}Notifications · Juangout{% endblock %}
 
@@ -10,7 +11,7 @@
         {% include "accounts/_avatar.html" with member=n.actor size=28 %}
         <a class="author" href="{{ n.actor.get_absolute_url }}">{{ n.actor.name }}</a>
         {% if n.post %}<a href="{{ n.post.get_absolute_url }}">{{ n.get_verb_display }}</a>{% else %}{{ n.get_verb_display }}{% endif %}
-        <span class="when">{{ n.created|timesince }} ago</span>
+        <span class="when">{{ n.created|naturaltime }}</span>
         {% if n.post %}<div class="excerpt">{{ n.post.body|truncatechars:80 }}</div>{% endif %}
       </li>
     {% empty %}

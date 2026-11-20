@@ -1,5 +1,6 @@
-<!doctype html>
-<html lang="en">
+{% load i18n %}<!doctype html>
+{% get_current_language as LANGUAGE_CODE %}
+<html lang="{{ LANGUAGE_CODE }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,20 +12,20 @@
   <header class="site-header">
     <a class="logo" href="{% url 'posts:timeline' %}">Juangout</a>
     <nav>
-      <a href="{% url 'posts:timeline' %}">Home</a>
-      <a href="{% url 'posts:search' %}">Search</a>
-      <a href="{% url 'about' %}">About</a>
+      <a href="{% url 'posts:timeline' %}">{% translate "Home" %}</a>
+      <a href="{% url 'posts:search' %}">{% translate "Search" %}</a>
+      <a href="{% url 'about' %}">{% translate "About" %}</a>
       {% if user.is_authenticated %}
-        <a href="{% url 'notifications:list' %}">Notifications{% if unread_count %} <span class="count-badge" aria-label="{{ unread_count }} unread">{{ unread_count }}</span>{% endif %}</a>
+        <a href="{% url 'notifications:list' %}">{% translate "Notifications" %}{% if unread_count %} <span class="count-badge" aria-label="{{ unread_count }} unread">{{ unread_count }}</span>{% endif %}</a>
         <a href="{{ user.get_absolute_url }}">@{{ user.username }}</a>
-        <a href="{% url 'accounts:profile_edit' %}">Edit profile</a>
-        {% if perms.posts.hide_post %}<a href="{% url 'moderation:queue' %}">Moderation</a>{% endif %}
+        <a href="{% url 'accounts:profile_edit' %}">{% translate "Edit profile" %}</a>
+        {% if perms.posts.hide_post %}<a href="{% url 'moderation:queue' %}">{% translate "Moderation" %}</a>{% endif %}
         <form method="post" action="{% url 'logout' %}" class="inline">
-          {% csrf_token %}<button type="submit" class="link">Log out</button>
+          {% csrf_token %}<button type="submit" class="link">{% translate "Log out" %}</button>
         </form>
       {% else %}
-        <a href="{% url 'login' %}">Log in</a>
-        <a href="{% url 'accounts:signup' %}">Sign up</a>
+        <a href="{% url 'login' %}">{% translate "Log in" %}</a>
+        <a href="{% url 'accounts:signup' %}">{% translate "Sign up" %}</a>
       {% endif %}
     </nav>
   </header>
@@ -34,6 +35,20 @@
     </div>
     {% block content %}{% endblock %}
   </main>
-  <footer class="site-footer">Made with Juango</footer>
+  <footer class="site-footer">
+    {% translate "Made with Juango" %}
+    <form action="{% url 'set_language' %}" method="post" class="language">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <label for="language">{% translate "Language" %}</label>
+      <select name="language" id="language" onchange="this.form.submit()">
+        {% get_available_languages as LANGUAGES %}
+        {% for code, name in LANGUAGES %}
+          <option value="{{ code }}"{% if code == LANGUAGE_CODE %} selected{% endif %}>{{ code|language_name_local }}</option>
+        {% endfor %}
+      </select>
+      <noscript><button type="submit">{% translate "Change" %}</button></noscript>
+    </form>
+  </footer>
 </body>
 </html>

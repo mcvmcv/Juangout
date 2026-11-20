@@ -3,6 +3,7 @@ const urlpatterns = [
     path("everyone/", everyone; name = "everyone"),
     live("live/", LiveTimeline, "posts/live.html"; name = "live"),
     path("search/", search; name = "search"),
+    path("trending/", trending; name = "trending"),
     path("tags/<str:name>/", tag_posts; name = "tag"),
     path("posts/new/", login_required(post_create); name = "create"),
     path("posts/<int:id>/", post_detail; name = "detail"),

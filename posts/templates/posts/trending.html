@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load i18n humanize %}
+
+{% block title %}{% translate "Trending" %} · Juangout{% endblock %}
+
+{% block content %}
+  {% include "posts/_tabs.html" %}
+  {% if tags %}
+    <section class="trending-tags">
+      <h2 class="section-title">{% translate "Tags this week" %}</h2>
+      {% for t in tags %}
+        <a class="tag-chip" href="{% url 'posts:tag' t.name %}">#{{ t.name }} <span>{{ t.uses|intcomma }}</span></a>
+      {% endfor %}
+    </section>
+  {% endif %}
+  <h2 class="section-title">{% translate "Most liked today" %}</h2>
+  {% for post in posts %}
+    {% include "posts/_post.html" %}
+  {% empty %}
+    <p class="empty">{% translate "Nothing has been liked today. Yet." %}</p>
+  {% endfor %}
+{% endblock %}

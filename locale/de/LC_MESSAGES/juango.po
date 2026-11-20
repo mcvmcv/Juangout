@@ -1,0 +1,127 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: posts/templates/posts/_post.html:8
+msgid "delete"
+msgstr "löschen"
+
+#: posts/templates/posts/_post.html:9
+msgid "report"
+msgstr "melden"
+
+#: posts/templates/posts/_post.html:10
+msgid "hidden"
+msgstr "verborgen"
+
+#: posts/templates/posts/_post.html:12
+msgid "replying to"
+msgstr "Antwort an"
+
+#: posts/templates/posts/_tabs.html:4
+msgid "Following"
+msgstr "Gefolgt"
+
+#: posts/templates/posts/_tabs.html:5
+msgid "Everyone"
+msgstr "Alle"
+
+#: posts/templates/posts/_tabs.html:6
+#: posts/templates/posts/trending.html:4
+msgid "Trending"
+msgstr "Im Trend"
+
+#: posts/templates/posts/_tabs.html:7
+msgid "Live"
+msgstr "Live"
+
+#: posts/templates/posts/timeline.html:10
+msgid "Welcome to Juangout"
+msgstr "Willkommen bei Juangout"
+
+#: posts/templates/posts/timeline.html:11
+msgid "Say what's on your mind. Briefly."
+msgstr "Sag, was du denkst. Kurz."
+
+#: posts/templates/posts/timeline.html:11
+#: templates/base.html:28
+msgid "Sign up"
+msgstr "Registrieren"
+
+#: posts/templates/posts/timeline.html:11
+msgid "or"
+msgstr "oder"
+
+#: posts/templates/posts/timeline.html:11
+msgid "log in"
+msgstr "anmelden"
+
+#: posts/templates/posts/timeline.html:26
+msgid "Nothing to read yet."
+msgstr "Noch nichts zu lesen."
+
+#: posts/templates/posts/timeline.html:32
+msgid "Older posts"
+msgstr "Ältere Beiträge"
+
+#: posts/templates/posts/trending.html:10
+msgid "Tags this week"
+msgstr "Hashtags dieser Woche"
+
+#: posts/templates/posts/trending.html:16
+msgid "Most liked today"
+msgstr "Heute am beliebtesten"
+
+#: posts/templates/posts/trending.html:20
+msgid "Nothing has been liked today. Yet."
+msgstr "Heute wurde noch nichts geliked. Noch nicht."
+
+#: templates/base.html:15
+msgid "Home"
+msgstr "Start"
+
+#: templates/base.html:16
+msgid "Search"
+msgstr "Suche"
+
+#: templates/base.html:17
+msgid "About"
+msgstr "Über"
+
+#: templates/base.html:19
+msgid "Notifications"
+msgstr "Mitteilungen"
+
+#: templates/base.html:21
+msgid "Edit profile"
+msgstr "Profil bearbeiten"
+
+#: templates/base.html:22
+msgid "Moderation"
+msgstr "Moderation"
+
+#: templates/base.html:24
+msgid "Log out"
+msgstr "Abmelden"
+
+#: templates/base.html:27
+msgid "Log in"
+msgstr "Anmelden"
+
+#: templates/base.html:39
+msgid "Made with Juango"
+msgstr "Gemacht mit Juango"
+
+#: templates/base.html:43
+msgid "Language"
+msgstr "Sprache"
+
+#: templates/base.html:50
+msgid "Change"
+msgstr "Ändern"
+

@@ -15,6 +15,7 @@ include("admin.jl")
 include("templatetags.jl")
 include("views.jl")
 include("live.jl")
+include("trending.jl")
 include("urls.jl")
 include("commands.jl")
 

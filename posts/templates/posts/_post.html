@@ -1,15 +1,15 @@
-{% load posts_extras %}
+{% load posts_extras humanize i18n %}
 <article class="post">
   <header>
     <a class="avatar-link" href="{{ post.author.get_absolute_url }}">{% include "accounts/_avatar.html" with member=post.author size=36 %}</a>
     <a class="author" href="{{ post.author.get_absolute_url }}">{{ post.author.name }}</a>
     <span class="handle">@{{ post.author.username }}</span> ·
-    <a class="when" href="{{ post.get_absolute_url }}" title="{{ post.created|date:'j M Y, H:i' }}">{{ post.created|timesince }} ago</a>
-    {% if post.author_id == user.id %}· <a class="delete" href="{% url 'posts:delete' post.id %}">delete</a>
-    {% elif user.is_authenticated %}· <a class="report" href="{% url 'moderation:report' post.id %}">report</a>{% endif %}
-    {% if post.hidden %}<span class="badge hidden-badge">hidden</span>{% endif %}
+    <a class="when" href="{{ post.get_absolute_url }}" title="{{ post.created|date:'j M Y, H:i T' }}">{{ post.created|naturaltime }}</a>
+    {% if post.author_id == user.id %}· <a class="delete" href="{% url 'posts:delete' post.id %}">{% translate "delete" %}</a>
+    {% elif user.is_authenticated %}· <a class="report" href="{% url 'moderation:report' post.id %}">{% translate "report" %}</a>{% endif %}
+    {% if post.hidden %}<span class="badge hidden-badge">{% translate "hidden" %}</span>{% endif %}
     {% if post.reply_to %}
-      <div class="replying-to">replying to <a href="{{ post.reply_to.get_absolute_url }}">@{{ post.reply_to.author.username }}</a></div>
+      <div class="replying-to">{% translate "replying to" %} <a href="{{ post.reply_to.get_absolute_url }}">@{{ post.reply_to.author.username }}</a></div>
     {% endif %}
   </header>
   <p class="body">{{ post.body|linebreaksbr|hashtags }}</p>

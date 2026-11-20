@@ -170,3 +170,10 @@ button.secondary { background: var(--card); color: var(--ink); border: 1px solid
 .reports { margin: 0 0 .75rem; padding-left: 1.2rem; color: var(--muted); }
 .reports .note { color: var(--ink); font-style: italic; }
 .decide button { margin-right: .5rem; }
+
+/* polish */
+.tag-chip { display: inline-block; margin: 0 .4rem .5rem 0; padding: .2rem .65rem; border-radius: 999px; background: var(--accent-soft); text-decoration: none; font-weight: 600; }
+.tag-chip span { color: var(--muted); font-weight: 400; margin-left: .2rem; }
+.site-footer { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.site-footer .language label { margin-right: .3rem; }
+.site-footer select { font: inherit; padding: .15rem .3rem; border: 1px solid var(--line); border-radius: 6px; background: var(--card); color: inherit; }
