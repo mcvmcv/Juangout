@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}#{{ tag.name }} · Juangout{% endblock %}
+
+{% block content %}
+  <h1>#{{ tag.name }}</h1>
+  <p class="aside">{{ paginator.count }} post{{ paginator.count|pluralize }}</p>
+  {% for post in post_list %}
+    {% include "posts/_post.html" %}
+  {% endfor %}
+  {% include "_pagination.html" %}
+{% endblock %}

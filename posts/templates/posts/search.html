@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}{% if q %}{{ q }} · {% endif %}Search · Juangout{% endblock %}
+
+{% block content %}
+  <h1>Search</h1>
+  {# An ordinary GET form. With htmx, typing or changing a filter fetches just the results, #}
+  {# and hx-push-url keeps the address bar (and so the back button and sharing) up to date. #}
+  <form method="get" action="{% url 'posts:search' %}" class="form search-form" role="search"
+        hx-get="{% url 'posts:search' %}" hx-trigger="input changed delay:300ms, change" hx-target="#results" hx-push-url="true">
+    <div class="search-main">
+      <label for="id_q">{{ filter.form.q.label }}</label>
+      <input type="search" name="q" id="id_q" value="{{ q }}" placeholder="Words, @names or #tags" autofocus>
+    </div>
+    <details class="filters"{% if request.GET.author or request.GET.pictures or request.GET.created_after or request.GET.created_before %} open{% endif %}>
+      <summary>Filters</summary>
+      <div>{{ filter.form.author.label_tag }} {{ filter.form.author }}</div>
+      <div>{{ filter.form.pictures.label_tag }} {{ filter.form.pictures }}</div>
+      <div>{{ filter.form.created.label_tag }} {{ filter.form.created }}</div>
+    </details>
+    <noscript><button type="submit">Search</button></noscript>
+  </form>
+
+  <div id="results">
+    {% partialdef results inline %}
+      {% if members %}
+        <h2 class="section-title">Members</h2>
+        <ul class="members">
+          {% for m in members %}
+            <li>{% include "accounts/_avatar.html" with member=m size=28 %}
+              <a class="author" href="{{ m.get_absolute_url }}">{{ m.name }}</a> <span class="handle">@{{ m.username }}</span></li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+      {% if searched %}
+        <h2 class="section-title">{{ page_obj.paginator.count }} post{{ page_obj.paginator.count|pluralize }}</h2>
+        {% for post in page_obj %}
+          {% include "posts/_post.html" %}
+        {% empty %}
+          <p class="empty">No posts match.</p>
+        {% endfor %}
+        {% if page_obj.has_next %}
+          <p class="pagination"><a href="{% querystring page=page_obj.next_page_number %}">More results →</a></p>
+        {% endif %}
+      {% endif %}
+    {% endpartialdef %}
+  </div>
+{% endblock %}

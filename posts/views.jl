@@ -95,3 +95,28 @@ function redirect_back(req, fallback)
     next = get(req.POST, "next", "")
     url_has_allowed_host_and_scheme(next, [Juango.get_host(req)]) ? redirect(next) : redirect(fallback)
 end
+
+# The posts with one tag: /tags/julia/
+const tag_posts = ListView(Post; template = "posts/tag.html", paginate_by = 20,
+    get_queryset = v -> for_display(filter(Post; tags = get_object_or_404(Tag; name = v.kwargs[:name])), v.request.user),
+    get_context_data = (v, ctx) -> (ctx["tag"] = get(Tag; name = v.kwargs[:name]); ctx))
+
+# Search: members whose name matches, and posts filtered by a FilterSet from the query string.
+function search(req)
+    q = strip(get(req.GET, "q", ""))
+    posts = FilterSet(Post, [
+        :q => CharFilter(label = "Search for", distinct = true, method = (qs, name, v) ->
+            filter(qs, Q(body__icontains = v) | Q(author__username__icontains = v) | Q(tags__name = lowercase(lstrip(v, '#'))))),
+        :author => CharFilter(field_name = "author__username", lookup = "iexact", label = "By"),
+        :pictures => BooleanFilter(label = "With pictures", method = (qs, name, v) ->
+            v ? exclude(qs; image = "") : filter(qs; image = "")),
+        :created => DateFromToRangeFilter(label = "Posted"),
+    ]; data = req.GET, queryset = for_display(objects(Post), req.user), request = req)
+    members = isempty(q) ? [] :
+        collect(filter(get_user_model(), Q(username__icontains = q) | Q(display_name__icontains = q); is_active = true)[1:10])
+    page = get_page(Paginator(posts.qs, 20), get(req.GET, "page", "1"))
+    render(req, "posts/search.html",
+           Dict("q" => q, "filter" => posts, "members" => members, "page_obj" => page,
+                "searched" => any(!isempty(get(req.GET, k, "")) for k in ("q", "author", "pictures", "created_after", "created_before")));
+           htmx_partial = "results")     # htmx asks for just the results as you type
+end

@@ -151,3 +151,13 @@ button.secondary { background: var(--card); color: var(--ink); border: 1px solid
 /* live */
 .chars-left { color: var(--muted); font-size: .85rem; margin: -.4rem 0 .6rem; }
 .chars-left.over { color: #b42318; font-weight: 600; }
+
+/* search and tags */
+.hashtag { text-decoration: none; font-weight: 600; }
+.hashtag:hover { text-decoration: underline; }
+.search-main input { width: 100%; padding: .65rem .8rem; font: inherit; font-size: 1.1rem; border: 1px solid var(--line); border-radius: 8px; background: var(--card); }
+.filters { margin-top: .75rem; color: var(--muted); }
+.filters summary { cursor: pointer; }
+.filters > div { margin: .5rem 0; }
+.filters label { display: inline-block; min-width: 7rem; font-weight: 400; }
+.filters input, .filters select { padding: .3rem .5rem; font: inherit; border: 1px solid var(--line); border-radius: 6px; background: var(--card); }

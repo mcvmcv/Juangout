@@ -398,3 +398,74 @@ end
         @test occursin("j-click=\"like\"", live_flush!(lt))
     end
 end
+
+@testset "hashtags" begin
+    rollback_after() do
+        ann = create_user("ann"; password = "correct-horse-battery")
+        @test Posts.hashtags("Loving #Julia and #juliaLang, not C# or &#x27;") == ["julia", "julialang"]
+
+        # saving a post gives it its tags, and editing it keeps them up to date
+        p = create(Post; author = ann, body = "Learning #Julia today #til")
+        @test Set(t.name for t in p.tags) == Set(["julia", "til"])
+        p.body = "Learning #Julia, still"
+        save!(p)
+        @test [t.name for t in p.tags] == ["julia"]
+        @test count(Tag) == 2                           # the #til tag remains, with no posts
+
+        # the filter links hashtags, and leaves everything else escaped
+        r = get(Client(), get_absolute_url(p))
+        @test assert_contains(r, "<a class=\"hashtag\" href=\"/tags/julia/\">#Julia</a>"; html = false)
+        create(Post; author = ann, body = "It's <b>bold</b> #fun")
+        r = get(Client(), "/tags/fun/")
+        @test assert_contains(r, "It&#x27;s &lt;b&gt;bold&lt;/b&gt;"; html = false)   # escaped, apostrophe not a tag
+        @test assert_not_contains(r, "/tags/x27/")
+
+        # a tag's page lists its posts; an unknown tag is a 404
+        r = get(Client(), "/tags/julia/")
+        @test [q.body for q in r.context["post_list"]] == ["Learning #Julia, still"]
+        @test get(Client(), "/tags/nosuchtag/").status == 404
+    end
+end
+
+@testset "search" begin
+    rollback_after() do
+        ann = create_user("ann"; password = "correct-horse-battery", display_name = "Ann Lee")
+        bob = create_user("bob"; password = "correct-horse-battery")
+        create(Post; author = ann, body = "Tomatoes are ripe #garden")
+        create(Post; author = bob, body = "My garden is a jungle")
+        create(Post; author = bob, body = "Nothing to see here")
+        found(r) = Set(p.body for p in r.context["page_obj"])
+        c = Client()
+
+        @test get(c, "/search/").status == 200
+        @test isempty(get(c, "/search/").context["members"])
+
+        r = get(c, "/search/?q=garden")                 # in the text, or as a tag
+        @test found(r) == Set(["Tomatoes are ripe #garden", "My garden is a jungle"])
+        @test found(get(c, "/search/?q=%23garden")) == Set(["Tomatoes are ripe #garden"])  # just the tag
+        @test found(get(c, "/search/?q=garden&author=bob")) == Set(["My garden is a jungle"])
+        @test found(get(c, "/search/?author=ANN")) == Set(["Tomatoes are ripe #garden"])     # iexact
+
+        # members by username or display name
+        @test [m.username for m in get(c, "/search/?q=lee").context["members"]] == ["ann"]
+
+        # a picture filter, and a date range
+        p = first(filter(Post; author = bob, body = "Nothing to see here"))
+        update!(filter(Post; id = p.id); image = "posts/x.png")
+        @test found(get(c, "/search/?pictures=true")) == Set(["Nothing to see here"])
+        @test length(found(get(c, "/search/?created_after=2000-01-01"))) == 3
+        @test isempty(found(get(c, "/search/?created_before=2000-01-01")))
+
+        # htmx gets just the results; the next-page link keeps the filters
+        r = get(c, "/search/?q=garden"; htmx = true)
+        @test assert_not_contains(r, "<html")
+        @test assert_contains(r, "2 posts")
+        for i in 1:25
+            create(Post; author = bob, body = "garden note $i")
+        end
+        r = get(c, "/search/?q=garden&author=bob")
+        link = match(r"href=\"([^\"]*page=2[^\"]*)\"", text(r))
+        @test link !== nothing
+        @test occursin("q=garden", link[1]) && occursin("author=bob", link[1])
+    end
+end

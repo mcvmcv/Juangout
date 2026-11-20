@@ -1,3 +1,12 @@
+# A hashtag. Posts get their tags from the #words in their body (see save! below).
+@model struct Tag
+    name = CharField(max_length = 50, unique = true)      # lowercase, without the #
+    Meta(ordering = ["name"])
+end
+
+Base.show(io::IO, t::Tag) = print(io, "#", t.name)
+Juango.get_absolute_url(t::Tag) = reverse_url("posts:tag"; name = t.name)
+
 @model struct Post
     author = ForeignKey(USER_MODEL; on_delete = :CASCADE, related_name = :posts)
     body = TextField(max_length = 280)
@@ -13,12 +22,25 @@
     reply_to = ForeignKey(:self; null = true, blank = true, on_delete = :CASCADE, related_name = :replies)
     # the members who like this post, stored as Like rows
     likers = ManyToManyField(USER_MODEL; through = :Like, related_name = :liked_posts, blank = true)
+    tags = ManyToManyField(Tag; related_name = :posts, blank = true)
     Meta(ordering = ["-created"])
 end
 
 Base.show(io::IO, p::Post) = print(io, length(p.body) > 50 ? first(p.body, 49) * "…" : p.body)
 
 Juango.get_absolute_url(p::Post) = reverse_url("posts:detail"; id = p.id)
+
+# "#word", but not the "#x27" inside an escaped apostrophe ("&#x27;") or a word like "C#"
+const HASHTAG = r"(?<![&\w])#(\w{1,50})"
+hashtags(text) = unique(lowercase(m.captures[1]) for m in eachmatch(HASHTAG, text))
+
+# Saving a post also brings its tags up to date with the #words in its body. A method of
+# save! for Post runs wherever a post is saved: forms, the admin, create, your own code.
+function Juango.save!(p::Post; kw...)
+    invoke(Juango.save!, Tuple{Juango.Model}, p; kw...)     # the usual save!, for any model
+    set!(p.tags, [first(get_or_create(Tag; name)) for name in hashtags(p.body)])
+    p
+end
 
 # Whether the post has a picture. The field holds a stored file, an upload that's being
 # saved, or (on a new post) nothing: Juango #250, after which `!isempty(p.image)` will do.

@@ -1,3 +1,4 @@
+{% load posts_extras %}
 <article class="post">
   <header>
     <a class="avatar-link" href="{{ post.author.get_absolute_url }}">{% include "accounts/_avatar.html" with member=post.author size=36 %}</a>
@@ -9,7 +10,7 @@
       <div class="replying-to">replying to <a href="{{ post.reply_to.get_absolute_url }}">@{{ post.reply_to.author.username }}</a></div>
     {% endif %}
   </header>
-  <p class="body">{{ post.body|linebreaksbr }}</p>
+  <p class="body">{{ post.body|linebreaksbr|hashtags }}</p>
   {% if post.image %}
     <a href="{{ post.image.url }}" class="post-image">
       <img src="{{ post.image.url }}" alt="{{ post.image_alt }}"
