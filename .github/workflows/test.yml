@@ -19,7 +19,6 @@ jobs:
         options: >-
           --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
     env:
-      DATABASE_URL: ${{ matrix.database == 'postgres' && 'postgresql://juangout:juangout@127.0.0.1:5432/juangout' || '' }}
       JULIA_IMAGE_THREADS: 4
     steps:
       - uses: actions/checkout@v4
@@ -27,6 +26,9 @@ jobs:
         with:
           version: "1.13"
       - uses: julia-actions/cache@v2
+      - name: Use PostgreSQL
+        if: matrix.database == 'postgres'
+        run: echo "DATABASE_URL=postgresql://juangout:juangout@127.0.0.1:5432/juangout" >> "$GITHUB_ENV"
       - name: Install packages
         run: julia --project -e 'using Pkg; Pkg.instantiate()'
       - name: Models and migrations agree
