@@ -1,0 +1,35 @@
+name: tests
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        database: [sqlite, postgres]
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: juangout
+          POSTGRES_PASSWORD: juangout
+          POSTGRES_DB: juangout
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: ${{ matrix.database == 'postgres' && 'postgresql://juangout:juangout@127.0.0.1:5432/juangout' || '' }}
+      JULIA_IMAGE_THREADS: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: "1.13"
+      - uses: julia-actions/cache@v2
+      - name: Install packages
+        run: julia --project -e 'using Pkg; Pkg.instantiate()'
+      - name: Models and migrations agree
+        run: julia --project manage.jl makemigrations --check
+      - name: Tests
+        run: julia --project manage.jl test
