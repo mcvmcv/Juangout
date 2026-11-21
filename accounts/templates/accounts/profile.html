@@ -3,6 +3,10 @@
 
 {% block title %}{{ member.name }} (@{{ member.username }}) · Juangout{% endblock %}
 
+{% block extra_head %}
+  <link rel="alternate" type="application/rss+xml" title="{{ member.name }} on Juangout" href="{% url 'api:feed' member.username %}">
+{% endblock %}
+
 {% block content %}
   <section class="profile">
     {% include "accounts/_avatar.html" with size=96 %}
@@ -10,6 +14,7 @@
     <p class="handle">@{{ member.username }}{% if follows_me %} <span class="badge">follows you</span>{% endif %}
        · joined {{ member.date_joined|date:"F Y" }}</p>
     {% if member.bio %}<p class="bio">{{ member.bio|linebreaksbr }}</p>{% endif %}
+    <p class="aside"><a href="{% url 'api:feed' member.username %}">RSS feed</a></p>
     {% partialdef follow_box inline %}
     <div id="follow-box">
       <p class="counts">

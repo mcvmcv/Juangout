@@ -14,6 +14,8 @@ Juango.project_include(joinpath(BASE_DIR, "notifications", "Notifications.jl"))
 using .Notifications
 Juango.project_include(joinpath(BASE_DIR, "moderation", "Moderation.jl"))
 using .Moderation
+Juango.project_include(joinpath(BASE_DIR, "api", "Api.jl"))
+using .Api
 
 # project_include: tracked by Revise for runserver's reloading when Revise is loaded
 Juango.project_include(joinpath(BASE_DIR, "urls.jl"))

@@ -177,3 +177,8 @@ button.secondary { background: var(--card); color: var(--ink); border: 1px solid
 .site-footer { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
 .site-footer .language label { margin-right: .3rem; }
 .site-footer select { font: inherit; padding: .15rem .3rem; border: 1px solid var(--line); border-radius: 6px; background: var(--card); color: inherit; }
+
+/* api */
+code.secret { font-size: 1rem; background: var(--card); padding: .15rem .4rem; border-radius: 4px; user-select: all; }
+.tokens { list-style: none; padding: 0; }
+.tokens li { padding: .5rem 0; border-bottom: 1px solid var(--line); }
