@@ -1,0 +1,15 @@
+# /etc/systemd/system/juangout.service: the web server
+[Unit]
+Description=Juangout
+After=network.target postgresql.service
+
+[Service]
+User=juangout
+WorkingDirectory=/srv/juangout
+EnvironmentFile=/srv/juangout/.env
+# --threads=auto,1: worker threads for views, plus one to answer connections
+ExecStart=/usr/local/bin/julia --project --threads=auto,1 manage.jl runserver 127.0.0.1:8000 --noreload
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

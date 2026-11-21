@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block title %}Not found · Juangout{% endblock %}
+
+{% block content %}
+  <h1>Page not found</h1>
+  <p>There's nothing here. It may have been deleted, or the link may be wrong.</p>
+  <p><a href="{% url 'posts:timeline' %}">Back to the timeline</a></p>
+{% endblock %}

@@ -500,3 +500,27 @@ end
         @test isempty(Posts.trending_post_ids())
     end
 end
+
+@testset "error pages" begin
+    rollback_after() do
+        override_settings(DEBUG = false) do
+            r = get(Client(), "/no-such-page/")
+            @test r.status == 404
+            @test assert_contains(r, "Page not found"; status = 404)      # our templates/404.html
+        end
+    end
+end
+
+@testset "full-text search on PostgreSQL" begin
+    if startswith(env("DATABASE_URL"; default = ""), "postgres")
+        rollback_after() do
+            ann = create_user("ann"; password = "correct-horse-battery")
+            create(Post; author = ann, body = "Our gardens are full of tomatoes")
+            # stemming: "garden" finds "gardens", "tomato" finds "tomatoes"
+            r = get(Client(), "/search/?q=garden+tomato")
+            @test [p.body for p in r.context["page_obj"]] == ["Our gardens are full of tomatoes"]
+        end
+    else
+        @test_skip "needs DATABASE_URL=postgresql://..."
+    end
+end

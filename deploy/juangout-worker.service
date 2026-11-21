@@ -1,0 +1,14 @@
+# /etc/systemd/system/juangout-worker.service: runs background tasks (notification emails)
+[Unit]
+Description=Juangout task worker
+After=network.target postgresql.service
+
+[Service]
+User=juangout
+WorkingDirectory=/srv/juangout
+EnvironmentFile=/srv/juangout/.env
+ExecStart=/usr/local/bin/julia --project manage.jl db_worker
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

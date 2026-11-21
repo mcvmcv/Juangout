@@ -101,12 +101,18 @@ const tag_posts = ListView(Post; template = "posts/tag.html", paginate_by = 20,
     get_queryset = v -> for_display(filter(Post; tags = get_object_or_404(Tag; name = v.kwargs[:name])), v.request.user),
     get_context_data = (v, ctx) -> (ctx["tag"] = get(Tag; name = v.kwargs[:name]); ctx))
 
+# "#garden" means the tag; anything else is searched for in the text (full-text search, which
+# on PostgreSQL understands word forms: "gardens" finds "garden"), usernames and tags.
+function search_posts(qs, name, v)
+    startswith(v, "#") && return filter(qs; tags__name = lowercase(v[2:end]))
+    filter(qs, Q(body__search = v) | Q(author__username__icontains = v) | Q(tags__name = lowercase(v)))
+end
+
 # Search: members whose name matches, and posts filtered by a FilterSet from the query string.
 function search(req)
     q = strip(get(req.GET, "q", ""))
     posts = FilterSet(Post, [
-        :q => CharFilter(label = "Search for", distinct = true, method = (qs, name, v) ->
-            filter(qs, Q(body__icontains = v) | Q(author__username__icontains = v) | Q(tags__name = lowercase(lstrip(v, '#'))))),
+        :q => CharFilter(label = "Search for", distinct = true, method = search_posts),
         :author => CharFilter(field_name = "author__username", lookup = "iexact", label = "By"),
         :pictures => BooleanFilter(label = "With pictures", method = (qs, name, v) ->
             v ? exclude(qs; image = "") : filter(qs; image = "")),
